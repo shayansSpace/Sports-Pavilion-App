@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+{% load static %}
+
+
+{% block body %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Member Profile</h2>
+    <a href="{% url 'member_list' %}" class="btn btn-outline-secondary btn-sm">Back to Members</a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h4 class="card-title mb-1">{{ member.full_name }}</h4>
+      <p class="text-muted mb-3">{{ member.formatted_id }}</p>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="fw-semibold">Email</div>
+            <div>{{ member.mem_email }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="fw-semibold">Joined</div>
+            <div>{{ member.mem_join_date|date:"d M Y" }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="fw-semibold">Plan</div>
+            <div>{{ member.plan.plan_name|default:"No Plan" }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock body %}

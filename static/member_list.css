@@ -1,0 +1,13 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.box{
+    width: 80vw;
+    min-height: 60vh;
+    background-color: rgb(233, 233, 233);
+    margin: 50px auto;
+    border-radius: 20px;
+}
