@@ -3,23 +3,46 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib.auth import logout, authenticate, login
 from .models import Member
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
-# Create your views here.
+@login_required(login_url='login') # If anonymous, go to /login
 def index(request):
-    # if request.user.is_anonymous:
-    #     return redirect('/login')
     context = {'title': 'Sports Pavilion - Home'}
     return render(request, 'index.html', context)
 
-def services(request):
-    context = {'title': 'Sports Pavilion - Services'}
-    return render(request, 'services.html', context)
+def registerUser(request):
+    if request.method == 'POST':
+        u_name = request.POST.get('username')
+        email = request.POST.get('email')
+        p_word = request.POST.get('password')
+        
+        # 1. Validation: Check if username already exists
+        if User.objects.filter(username=u_name).exists():
+            messages.error(request, "Username is already taken!")
+            return redirect('login') # Sends them back to try again
+            
+        # 2. Magic Creation: create_user automatically hashes the password safely
+        user = User.objects.create_user(username=u_name, email=email, password=p_word)
+        user.save()
+        
+        # 3. Seamless UX: Log them in instantly right after registration
+        login(request, user)
+        
+        # 4. Set the 2-week cookie persistence you requested
+        request.session.set_expiry(1209600) 
+        
+        messages.success(request, f"Welcome to Sports Pavilion, {user.username}! Your account is ready.")
+        return redirect('home') # Standard users go to the index page
+        
+    return redirect('login')
 
 def about(request):
     context = {'title': 'Sports Pavilion - About Us'}
     return render(request, 'about.html', context)
 
+@login_required(login_url='login') # If anonymous, go to /login
 def member_list(request):
     # 1. Catch the text from your HTML form (name="q")
     query = request.GET.get('q', '').strip()
@@ -55,17 +78,28 @@ def member_profile(request, member_id):
     return render(request, 'member_profile.html', context)
 
 def loginUser(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
+        u_name = request.POST.get('username').strip()
+        p_word = request.POST.get('password')
+        user = authenticate(username=u_name, password=p_word)
     
         if user is not None:
             login(request, user)
-            return redirect('/')
+            request.session.set_expiry(1209600) # 2 weeks in seconds
+
+            if user.is_staff:
+                return redirect('member_list') # Redirect Admin to /members
+            else:
+                messages.success(request, f"Welcome {user.username}!")
+                return redirect('home') #return to index page for regular users 
         else:
             context = {'title': 'Login'}
+            messages.error(request, "Invalid username or password")
             return render(request, 'login.html', context)
+        
     context = {'title': 'Login'}
     return render(request, 'login.html', context)
 
