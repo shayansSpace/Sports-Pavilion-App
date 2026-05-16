@@ -2,14 +2,25 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib.auth import logout, authenticate, login
-from .models import Member
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+#import tables from models.py
+from .models import Member
+from .models import MembershipPlan, Member, MemberPhone, PlayUnit, Visitor, VisitorPhone, Booking, VisitorBooking, MemberBooking
+from datetime import date
 
-
-@login_required(login_url='login') # If anonymous, go to /login
+# @login_required(login_url='login') # If anonymous, go to /login
 def index(request):
-    context = {'title': 'Sports Pavilion - Home'}
+    is_member = False
+    has_gym = False
+    if request.user.is_authenticated:
+        member_profile = Member.objects.filter(mem_email=request.user.email).first()
+        if member_profile:
+            is_member = True
+            # Safely check if their plan covers gym access
+            if member_profile.plan and member_profile.plan.gym_access:
+                has_gym = True
+    context = {'title': 'Sports Pavilion - Home', 'is_member': is_member, 'has_gym': has_gym}
     return render(request, 'index.html', context)
 
 def registerUser(request):
@@ -106,3 +117,113 @@ def loginUser(request):
 def logoutUser(request):
     logout(request)
     return redirect('/login')
+
+
+@login_required(login_url='login')
+def become_member(request):
+    # Security check: Match user email to see if they already have a member profile
+    if Member.objects.filter(mem_email=request.user.email).exists():
+        messages.info(request, "You are already recorded as an active member!")
+        return redirect('home')
+
+    if request.method == 'POST':
+        plan_id = request.POST.get('plan')
+        phone = request.POST.get('phone')
+        
+        # 1. Create the Member entry
+        new_member = Member.objects.create(
+            plan_id=plan_id,
+            mem_first_name=request.POST.get('first_name'),
+            mem_last_name=request.POST.get('last_name'),
+            mem_email=request.user.email,
+            mem_join_date=date.today()
+        )
+        
+        # 2. Create the Multi-valued attribute entry (Phone table)
+        MemberPhone.objects.create(member=new_member, phone_number=phone)
+        
+        messages.success(request, "Membership activated successfully!")
+        return redirect('home')
+
+    plans = MembershipPlan.objects.all()
+    return render(request, 'become_member.html', {'plans': plans})
+
+
+@login_required(login_url='login')
+def book_visitor(request):
+    if request.method == 'POST':
+        play_unit_id = request.POST.get('play_unit')
+        target_date = request.POST.get('date')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+
+        # Conflict Check: Ensure the PlayUnit isn't already occupied during that window
+        conflict = Booking.objects.filter(
+            play_unit_id=play_unit_id,
+            booking_date=target_date,
+            bk_start_time__lt=end_time,
+            bk_end_time__gt=start_time
+        ).exists()
+
+        if conflict:
+            messages.error(request, "This time slot is already occupied!")
+            return redirect('book_visitor')
+
+        # Step 1: Create the Visitor profile
+        visitor = Visitor.objects.create(
+            vis_first_name=request.POST.get('first_name'),
+            vis_last_name=request.POST.get('last_name')
+        )
+        # Step 2: Save visitor phone
+        VisitorPhone.objects.create(visitor=visitor, phone_number=request.POST.get('phone'))
+
+        # Step 3: Create the core Booking transaction 
+        booking = Booking.objects.create(
+            play_unit_id=play_unit_id,
+            bk_start_time=start_time,
+            bk_end_time=end_time
+        )
+
+        # Step 4: Link booking to visitor via 3NF split table
+        VisitorBooking.objects.create(booking=booking, visitor=visitor)
+
+        messages.success(request, "Visitor booking secured!")
+        return redirect('home')
+
+    play_units = PlayUnit.objects.filter(unit_status='Available')
+    return render(request, 'book_visitor.html', {'play_units': play_units})
+
+@login_required(login_url='login')
+def book_member(request):
+    # Verify they actually have a paid profile
+    current_member = Member.objects.filter(mem_email=request.user.email).first()
+    if not current_member:
+        messages.error(request, "Access Denied. You must subscribe to a plan first!")
+        return redirect('become_member')
+
+    if request.method == 'POST':
+        play_unit_id = request.POST.get('play_unit')
+        target_date = request.POST.get('date')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+
+        # Conflict check
+        if Booking.objects.filter(play_unit_id=play_unit_id, booking_date=target_date, bk_start_time__lt=end_time, bk_end_time__gt=start_time).exists():
+            messages.error(request, "Slot already booked.")
+            return redirect('book_member')
+
+        # Step 1: Create the independent transaction record
+        booking = Booking.objects.create(
+            play_unit_id=play_unit_id,
+            bk_start_time=start_time,
+            bk_end_time=end_time
+        )
+
+        # Step 2: Link it to our member through the OneToOne table mapping
+        MemberBooking.objects.create(booking=booking, member=current_member)
+
+        messages.success(request, f"Slot booked under Member ID: {current_member.formatted_id}")
+        return redirect('home')
+
+    play_units = PlayUnit.objects.all()
+    return render(request, 'book_member.html', {'play_units': play_units})

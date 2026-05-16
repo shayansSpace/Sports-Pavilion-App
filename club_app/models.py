@@ -186,53 +186,81 @@ class StaffPhone(models.Model):
 
 
 # ==========================================
-# 5. TRANSACTIONS (BOOKING & PAYMENT)
+# 5. TRANSACTIONS — Normalized to 3NF per the document
 # ==========================================
 
 class Booking(models.Model):
+    """
+    3NF version: booking_id, facility_id, unit_num, booking_date,
+    bk_start_time, bk_end_time ONLY.
+    Member/Visitor links are in separate junction tables below.
+    """
     booking_id = models.AutoField(primary_key=True)
-    # A booking is made by EITHER a Member OR a Visitor (both nullable, one must be set)
-    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True, related_name='bookings')
-    visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE, null=True, blank=True, related_name='bookings')
+    play_unit = models.ForeignKey(
+        PlayUnit, on_delete=models.CASCADE, related_name='bookings'
+    )
     booking_date = models.DateField(auto_now_add=True)
-
-    @property
-    def formatted_id(self):
-        return f"B-{self.booking_id:03d}"  # e.g. B-001
-
-    def __str__(self):
-        booker = self.member or self.visitor
-        return f"{self.formatted_id} | {booker}"
-
-
-class BookingDetail(models.Model):
-    # Resolves the multi-valued attributes on Booking:
-    # (facility_id, unit_num, bk_start_time, bk_end_time) — one row per slot
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='slots')
-    play_unit = models.ForeignKey(PlayUnit, on_delete=models.CASCADE, related_name='booking_slots')
     bk_start_time = models.TimeField()
     bk_end_time = models.TimeField()
 
+    @property
+    def formatted_id(self):
+        return f"B-{self.booking_id:03d}"
+
     def __str__(self):
-        return f"{self.booking.formatted_id} → {self.play_unit} [{self.bk_start_time}–{self.bk_end_time}]"
+        return f"{self.formatted_id} | {self.play_unit} [{self.bk_start_time}–{self.bk_end_time}]"
+
+
+class MemberBooking(models.Model):
+    """2NF split: links a Member to a Booking."""
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='member_booking')
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='bookings')
+
+    def __str__(self):
+        return f"{self.member.formatted_id} → {self.booking.formatted_id}"
+
+
+class VisitorBooking(models.Model):
+    """2NF split: links a Visitor to a Booking."""
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='visitor_booking')
+    visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE, related_name='bookings')
+
+    def __str__(self):
+        return f"{self.visitor.formatted_id} → {self.booking.formatted_id}"
 
 
 class Payment(models.Model):
+    """
+    3NF version: payment_id, amount, payment_date, payment_method ONLY.
+    Member/plan and booking links are in separate tables below.
+    """
     payment_id = models.AutoField(primary_key=True)
-    # PAYS relationship — either a Member or Visitor makes a payment
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-    visitor = models.ForeignKey(Visitor, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-    # A payment may be for a plan subscription OR a booking (or both, hence nullable)
-    plan = models.ForeignKey(MembershipPlan, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-    booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(max_length=50)
 
     @property
     def formatted_id(self):
-        return f"PAY-{self.payment_id:03d}"  # e.g. PAY-001
+        return f"PAY-{self.payment_id:03d}"
 
     def __str__(self):
         return f"{self.formatted_id} | ${self.amount} via {self.payment_method}"
+
+
+class MembershipPayment(models.Model):
+    """3NF split: links a Payment to a Member + Plan (subscription payment)."""
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE, related_name='membership_payment')
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='membership_payments')
+    plan = models.ForeignKey(MembershipPlan, on_delete=models.CASCADE, related_name='payments')
+
+    def __str__(self):
+        return f"{self.payment.formatted_id} → {self.member.formatted_id} | {self.plan}"
+
+
+class BookingPayment(models.Model):
+    """3NF split: links a Payment to a Booking."""
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE, related_name='booking_payment')
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
+
+    def __str__(self):
+        return f"{self.payment.formatted_id} → {self.booking.formatted_id}"
