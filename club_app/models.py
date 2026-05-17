@@ -68,7 +68,7 @@ class PlayUnit(models.Model):
         return f"U-{self.unit_id:03d}"  # e.g. U-001
 
     def __str__(self):
-        return f"{self.facility.facility_name} - Unit {self.unit_num} [{self.unit_status}]"
+        return f"{self.facility.facility_name} --- {self.unit_num} [{self.unit_status}]"
 
 
 # ==========================================
@@ -167,7 +167,6 @@ class VisitorPhone(models.Model):
 
     def __str__(self):
         return f"{self.visitor.formatted_id} → {self.phone_number}"
-
 
 class MemberPhone(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='phones')

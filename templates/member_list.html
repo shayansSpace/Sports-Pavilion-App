@@ -1,73 +1,146 @@
-{% extends "index.html" %} {% load static %} {% block title %}Sports Pavilion -
-Member List{% endblock %} {% block head %}
-<link rel="stylesheet" href="{% static 'member_list.css' %}" />
-{% endblock head %} {% block body %}
-<div class="box">
-  <button type="button" class="btn btn-primary btn-lg">Add New Member</button>
-  <div class="search-container">
-    
-    <input
-      type="text"
-      name="q"
-      placeholder="Search by ID, Name, or Email..."
-      class="form-control search-input"
-      value="{{ query }}"
-    />
+{% extends "index.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block head %}
+<style>
+  .dashboard-wrapper {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  .search-input {
+    background-color: #1a1a2e;
+    border: 1px solid #0f3460;
+    color: #fff !important;
+    padding: 12px 20px;
+  }
+  .search-input:focus {
+    background-color: #1a1a2e;
+    border-color: #00fff0;
+    box-shadow: 0 0 8px rgba(0, 255, 240, 0.2);
+  }
+  .custom-table {
+    background-color: #16213e;
+    color: #ffffff;
+    border-color: #0f3460;
+  }
+  .custom-table tr {
+    border-bottom: 1px solid #0f3460;
+  }
+  .custom-table th {
+    background-color: #1a1a2e !important;
+    color: #e94560 !important;
+    font-weight: 600;
+  }
+  .custom-table td {
+    color: #e0e0e0;
+  }
+  .btn-neon-cyan {
+    background-color: transparent;
+    border: 1px solid #00fff0;
+    color: #00fff0;
+    transition: all 0.2s ease;
+  }
+  .btn-neon-cyan:hover {
+    background-color: #00fff0;
+    color: #1a1a2e;
+    box-shadow: 0 0 10px rgba(0, 255, 240, 0.4);
+  }
+  .btn-neon-rose {
+    background: linear-gradient(135deg, #0f3460 0%, #e94560 100%);
+    border: none;
+    color: white;
+  }
+  .btn-neon-rose:hover {
+    box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+    color: white;
+  }
+</style>
+{% endblock head %}
+
+{% block homepage_specific_content %}{% endblock homepage_specific_content %}
+{% block body %}
+<div class="container py-4">
+  
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert alert-success bg-dark border-success text-success alert-dismissible fade show mb-4" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="dashboard-wrapper">
+    <div class="row align-items-center mb-4">
+      <div class="col-md-6">
+        <h3 class="fw-bold mb-0 text-white">Member <span style="color: #e94560;">Management</span> Console</h3>
+      </div>
+      <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'add_member' %}" class="btn btn-neon-rose px-4 fw-bold">+ Add New Member</a>
+      </div>
+    </div>
+
+    <form method="GET" action="{% url 'member_list' %}" class="mb-4">
+      <div class="input-group">
+        <input type="text" name="q" placeholder="Search by System ID, Name, or Email..." class="form-control search-input" value="{{ query }}" />
+        <button class="btn btn-outline-secondary border-secondary px-4 text-white" type="submit">Filter Matrix</button>
+        {% if query %}
+          <a href="{% url 'member_list' %}" class="btn btn-outline-danger d-flex align-items-center">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+
+    <div class="table-responsive">
+      <table class="table custom-table align-middle">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Full Name</th>
+            <th scope="col">Email Address</th>
+            <th scope="col">Primary Phone</th>
+            <th scope="col">Subscription Tier</th>
+            <th scope="col">Join Date</th>
+            <th scope="col" class="text-center">Operations</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in members %}
+          <tr>
+            <th scope="row" style="color: #00fff0 !important;">{{ m.formatted_id }}</th>
+            <td class="fw-bold">{{ m.full_name }}</td>
+            <td>{{ m.mem_email }}</td>
+            <td>
+              {% if m.phones.all %}
+                {{ m.phones.first.phone_number }}
+              {% else %}
+                <span class="text-muted italic small">None</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if 'Premium' in m.plan.plan_name or 'Elite' in m.plan.plan_name %}bg-warning text-dark{% else %}bg-secondary text-light{% endif %}">
+                {{ m.plan.plan_name|default:"No Active Subscription" }}
+              </span>
+            </td>
+            <td>{{ m.mem_join_date|date:"d M Y" }}</td>
+            <td class="text-center">
+              <a href="{% url 'member_profile' m.member_id %}" class="btn btn-sm btn-neon-cyan px-3">View Control Cockpit</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">
+              No matching records discovered inside the database framework.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-  <table class="table table-hover table-striped align-middle border shadow-sm">
-    <thead class="table-dark">
-      <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Member Name</th>
-        <th scope="col">Email</th>
-        <th scope="col">Phone Number</th>
-        <th scope="col">Plan</th>
-        <th scope="col">Joined</th>
-        <th scope="col" class="text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in members %}
-      <tr>
-        <th scope="row" class="text-primary">{{ m.formatted_id }}</th>
-
-        <td class="fw-bold">{{ m.full_name }}</td>
-
-        <td>{{ m.mem_email }}</td>
-
-        <td>
-          {% if m.phones.all %} {{ m.phones.first.phone_number }} {% else %}
-          <span class="text-muted small">No Phone</span>
-          {% endif %}
-        </td>
-
-        <td>
-          <span
-            class="badge rounded-pill {% if 'Premium' in m.plan.plan_name %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}"
-          >
-            {{ m.plan.plan_name|default:"No Plan" }}
-          </span>
-        </td>
-
-        <td>{{ m.mem_join_date|date:"d M Y" }}</td>
-
-        <td class="text-center">
-          <a
-            href="{% url 'member_profile' m.member_id %}"
-            class="btn btn-sm btn-primary"
-          >
-            Member Profile
-          </a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="6" class="text-center text-muted py-4">
-          No members found in the database.
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
 </div>
 {% endblock body %}

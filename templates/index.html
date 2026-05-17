@@ -4,26 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ title }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="static/style.css"/>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="static/style.css" />
     {% block head %}{% endblock head %}
 
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
       /* ── NAVBAR ── */
       .main-nav {
         position: fixed;
-        top: 0; left: 0; right: 0;
+        top: 0;
+        left: 0;
+        right: 0;
         z-index: 1000;
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 15px 40px;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(10px);
       }
-      .main-nav .logo img { height: 50px; }
+      .main-nav .logo img {
+        height: 50px;
+      }
       .main-nav .nav-links a {
         color: white;
         text-decoration: none;
@@ -31,7 +44,9 @@
         font-size: 15px;
         transition: color 0.2s;
       }
-      .main-nav .nav-links a:hover { color: #f0c040; }
+      .main-nav .nav-links a:hover {
+        color: #f0c040;
+      }
       .main-nav .auth-buttons a {
         margin-left: 10px;
         padding: 8px 20px;
@@ -55,13 +70,16 @@
         color: black !important;
         border: 2px solid #f0c040;
       }
-      .btn-signup:hover { background: #d4a017 !important; }
+      .btn-signup:hover {
+        background: #d4a017 !important;
+      }
 
       /* ── HERO SECTION ── */
       .hero {
         height: 100vh;
-        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-                    url('static/img-1.jpg') center/cover no-repeat;
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+          url("static/img-1.jpg") center/cover no-repeat;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -73,10 +91,12 @@
       .hero h1 {
         font-size: 58px;
         font-weight: 800;
-        text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
         margin-bottom: 15px;
       }
-      .hero h1 span { color: #f0c040; }
+      .hero h1 span {
+        color: #f0c040;
+      }
       .hero p {
         font-size: 20px;
         max-width: 600px;
@@ -123,6 +143,7 @@
         font-size: 36px;
         font-weight: 700;
         margin-bottom: 10px;
+        color: #1a#6661a2e;
       }
       .features .subtitle {
         color: #666;
@@ -133,14 +154,25 @@
         background: white;
         border-radius: 15px;
         padding: 35px 25px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         transition: transform 0.3s;
         height: 100%;
       }
-      .feature-card:hover { transform: translateY(-8px); }
-      .feature-card .icon { font-size: 50px; margin-bottom: 15px; }
-      .feature-card h5 { font-weight: 700; margin-bottom: 10px; }
-      .feature-card p { color: #666; font-size: 14px; }
+      .feature-card:hover {
+        transform: translateY(-8px);
+      }
+      .feature-card .icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+      }
+      .feature-card h5 {
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .feature-card p {
+        color: #666;
+        font-size: 14px;
+      }
 
       /* ── FACILITIES SECTION ── */
       .facilities {
@@ -149,8 +181,15 @@
         color: white;
         text-align: center;
       }
-      .facilities h2 { font-size: 36px; font-weight: 700; margin-bottom: 10px; }
-      .facilities .subtitle { color: #aaa; margin-bottom: 50px; }
+      .facilities h2 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .facilities .subtitle {
+        color: #aaa;
+        margin-bottom: 50px;
+      }
       .facility-card {
         background: #16213e;
         border: 1px solid #0f3460;
@@ -162,9 +201,18 @@
         background: #0f3460;
         transform: translateY(-5px);
       }
-      .facility-card .icon { font-size: 45px; margin-bottom: 15px; }
-      .facility-card h5 { font-weight: 700; margin-bottom: 8px; }
-      .facility-card p { color: #aaa; font-size: 13px; }
+      .facility-card .icon {
+        font-size: 45px;
+        margin-bottom: 15px;
+      }
+      .facility-card h5 {
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .facility-card p {
+        color: #aaa;
+        font-size: 13px;
+      }
 
       /* ── CTA SECTION ── */
       .cta {
@@ -172,8 +220,15 @@
         background: linear-gradient(135deg, #f0c040, #d4a017);
         text-align: center;
       }
-      .cta h2 { font-size: 38px; font-weight: 800; margin-bottom: 15px; }
-      .cta p { font-size: 18px; margin-bottom: 30px; }
+      .cta h2 {
+        font-size: 38px;
+        font-weight: 800;
+        margin-bottom: 15px;
+      }
+      .cta p {
+        font-size: 18px;
+        margin-bottom: 30px;
+      }
       .cta a {
         padding: 14px 40px;
         border-radius: 30px;
@@ -184,7 +239,10 @@
         color: white;
         transition: all 0.3s;
       }
-      .cta a:hover { background: #0f3460; transform: translateY(-2px); }
+      .cta a:hover {
+        background: #0f3460;
+        transform: translateY(-2px);
+      }
 
       /* ── FOOTER ── */
       .footer {
@@ -198,28 +256,37 @@
       /* ── SIDEBAR (shown only when logged in) ── */
       .sidebar {
         position: fixed;
-        top: 0; right: -320px;
-        width: 300px; height: 100%;
+        top: 0;
+        right: -320px;
+        width: 300px;
+        height: 100%;
         background: #1a1a2e;
         color: white;
         transition: right 0.3s ease;
         z-index: 9999;
         padding: 30px 20px;
-        box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
       }
-      .sidebar.open { right: 0; }
+      .sidebar.open {
+        right: 0;
+      }
       .sidebar-overlay {
         display: none;
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
         z-index: 9998;
       }
-      .sidebar-overlay.open { display: block; }
+      .sidebar-overlay.open {
+        display: block;
+      }
       .sidebar .close-btn {
         position: absolute;
-        top: 15px; right: 20px;
+        top: 15px;
+        right: 20px;
         font-size: 24px;
         cursor: pointer;
         color: white;
@@ -243,12 +310,22 @@
         color: white;
         transform: translateX(-5px);
       }
-      .option-card .icon { font-size: 28px; }
-      .option-card h6 { margin: 8px 0 4px; font-weight: bold; }
-      .option-card p { font-size: 12px; color: #aaa; margin: 0; }
+      .option-card .icon {
+        font-size: 28px;
+      }
+      .option-card h6 {
+        margin: 8px 0 4px;
+        font-weight: bold;
+      }
+      .option-card p {
+        font-size: 12px;
+        color: #aaa;
+        margin: 0;
+      }
       .sidebar-toggle {
         position: fixed;
-        top: 50%; right: 0;
+        top: 50%;
+        right: 0;
         transform: translateY(-50%);
         background: #0f3460;
         color: white;
@@ -265,51 +342,55 @@
   </head>
 
   <body>
-
     <!-- ✅ NAVBAR -->
     <nav class="main-nav">
       <div class="logo">
-        <img src="logo.png" alt="Sports Pavilion" />
+        <img src="/static/logo.png" alt="Sports Pavilion" />
       </div>
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/about">About</a>
-        <a href="/services">Services</a>
       </div>
       <div class="auth-buttons">
         {% if request.user.is_authenticated %}
-          <span style="color:white; margin-right:10px;">
-            👋 {{ request.user.username }}
-          </span>
-          <a href="/logout" class="btn-login">Logout</a>
+        <span style="color: white; margin-right: 10px">
+          👋 {{ request.user.username }}
+        </span>
+        <a href="/logout" class="btn-login">Logout</a>
         {% else %}
-          <a href="/login" class="btn-login">Login</a>
-          <a href="/login#signup" class="btn-signup">Sign Up</a>
+        <a href="/login" class="btn-login">Login</a>
+        <a href="/login#signup" class="btn-signup">Sign Up</a>
         {% endif %}
       </div>
     </nav>
 
-    {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" style="margin-top:80px !important;">
-        <strong>Success!</strong> {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-      {% endfor %}
-    {% endif %}
-
     {% block body %}{% endblock body %}
-
+    {% block homepage_specific_content %} 
+    {% if messages %}
+    {% for message in messages %}
+    <div
+      class="alert alert-success alert-dismissible fade show mt-3"
+      role="alert"
+      style="margin-top: 80px !important"
+    >
+      <strong>Success!</strong> {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %} 
+    {% endif %} 
     <!-- ✅ HERO SECTION -->
     <section class="hero">
       <h1>Welcome to <span>Sports Pavilion</span></h1>
-      <p>Your ultimate destination for sports, fitness, and recreation. Book facilities, join memberships, and enjoy world-class amenities.</p>
+      <p>
+        Your ultimate destination for sports, fitness, and recreation. Book
+        facilities, join memberships, and enjoy world-class amenities.
+      </p>
       <div class="hero-buttons">
         <a href="/services" class="btn-explore">Explore Facilities</a>
         {% if request.user.is_authenticated %}
-          <a href="#" onclick="openSidebar()" class="btn-book">Book Now</a>
+        <a href="#" onclick="openSidebar()" class="btn-book">Book Now</a>
         {% else %}
-          <a href="/login" class="btn-book">Book Now</a>
+        <a href="/login" class="btn-book">Book Now</a>
         {% endif %}
       </div>
     </section>
@@ -317,7 +398,9 @@
     <!-- ✅ FEATURES SECTION -->
     <section class="features">
       <h2>Why Choose Us?</h2>
-      <p class="subtitle">Everything you need for the perfect sports experience</p>
+      <p class="subtitle">
+        Everything you need for the perfect sports experience
+      </p>
       <div class="container">
         <div class="row g-4">
           <div class="col-md-3">
@@ -355,7 +438,9 @@
     <!-- ✅ FACILITIES SECTION -->
     <section class="facilities">
       <h2>Our Facilities</h2>
-      <p class="subtitle">Choose from a wide range of sports and recreation options</p>
+      <p class="subtitle">
+        Choose from a wide range of sports and recreation options
+      </p>
       <div class="container">
         <div class="row g-4">
           <div class="col-md-3">
@@ -408,34 +493,43 @@
     <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
     <div class="sidebar" id="sidebar">
       <button class="close-btn" onclick="closeSidebar()">✕</button>
-      <h5 style="margin-top:20px; margin-bottom:5px;">
+      <h5 style="margin-top: 20px; margin-bottom: 5px">
         👋 Hello, <strong>{{ request.user.username }}</strong>!
       </h5>
-      <p style="color:#aaa; font-size:13px;">What would you like to do today?</p>
-      <hr style="border-color:#0f3460;">
-      <a href="/book-visitor/" class="option-card">
+      <p style="color: #aaa; font-size: 13px">
+        What would you like to do today?
+      </p>
+      <hr style="border-color: #0f3460" />
+      <a href="/book-visitor" class="option-card">
         <div class="icon">🧳</div>
         <h6>Book as Visitor</h6>
         <p>Walk-in booking without membership</p>
       </a>
-      <a href="/become-member/" class="option-card">
+      <a href="/become-member" class="option-card">
         <div class="icon">🏅</div>
         <h6>Become a Member</h6>
         <p>Subscribe to a membership plan</p>
       </a>
-      <a href="/book-member/" class="option-card">
+      <a href="/book-member" class="option-card">
         <div class="icon">🎯</div>
         <h6>Book as Member</h6>
         <p>Use your membership to book facilities</p>
       </a>
-      <hr style="border-color:#0f3460;">
-      <a href="/logout" style="color:#ff6b6b; text-decoration:none; font-size:14px;">
+      <hr style="border-color: #0f3460" />
+      <a
+        href="/logout"
+        style="color: #ff6b6b; text-decoration: none; font-size: 14px"
+      >
         🚪 Logout
       </a>
     </div>
-    {% endif %}
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    {% endif %} 
+    {% endblock homepage_specific_content %}
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
     <script>
       function openSidebar() {
         document.getElementById('sidebar').classList.add('open');

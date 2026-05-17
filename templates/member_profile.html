@@ -1,38 +1,111 @@
 {% extends "index.html" %}
-{% load static %}
+{% block title %}{{ title }}{% endblock %}
 
+{% block head %}
+<style>
+  .profile-card {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  .attribute-box {
+    background-color: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 15px;
+  }
+  .attribute-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #e94560;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+  .attribute-val {
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin-top: 5px;
+  }
+</style>
+{% endblock head %}
+
+{% block homepage_specific_content %}{% endblock homepage_specific_content %}
 
 {% block body %}
 <div class="container py-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">Member Profile</h2>
-    <a href="{% url 'member_list' %}" class="btn btn-outline-secondary btn-sm">Back to Members</a>
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <a href="{% url 'member_list' %}" class="text-muted text-decoration-none small">← Return to Main Roster</a>
+      <h2 class="text-white fw-bold mt-1">Profile Workspace</h2>
+    </div>
+    
+    <div>
+      <a href="{% url 'edit_member' member.member_id %}" class="btn btn-outline-info px-4 me-2">Edit Credentials</a>
+      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        Purge Record
+      </button>
+    </div>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h4 class="card-title mb-1">{{ member.full_name }}</h4>
-      <p class="text-muted mb-3">{{ member.formatted_id }}</p>
+  <div class="profile-card">
+    <div class="mb-4 border-bottom border-secondary pb-3">
+      <h3 class="fw-bold text-white mb-1">{{ member.full_name }}</h3>
+      <span class="badge bg-dark border border-info text-info px-3 py-2 fw-mono">{{ member.formatted_id }}</span>
+    </div>
 
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="border rounded p-3 h-100">
-            <div class="fw-semibold">Email</div>
-            <div>{{ member.mem_email }}</div>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="attribute-box">
+          <div class="attribute-label">Email Communications</div>
+          <div class="attribute-val">{{ member.mem_email }}</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="attribute-box">
+          <div class="attribute-label">Registered Phone Vector</div>
+          <div class="attribute-val">
+            {% for phone in member.phones.all %}
+              {{ phone.phone_number }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              <span class="text-muted small">No active phone link mapped</span>
+            {% endfor %}
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="border rounded p-3 h-100">
-            <div class="fw-semibold">Joined</div>
-            <div>{{ member.mem_join_date|date:"d M Y" }}</div>
-          </div>
+      </div>
+      <div class="col-md-6">
+        <div class="attribute-box">
+          <div class="attribute-label">Assigned Club Layout Plan</div>
+          <div class="attribute-val text-warning fw-bold">{{ member.plan.plan_name|default:"Unassigned / Expired" }}</div>
         </div>
-        <div class="col-md-6">
-          <div class="border rounded p-3 h-100">
-            <div class="fw-semibold">Plan</div>
-            <div>{{ member.plan.plan_name|default:"No Plan" }}</div>
-          </div>
+      </div>
+      <div class="col-md-6">
+        <div class="attribute-box">
+          <div class="attribute-label">System Enlistment Timestamp</div>
+          <div class="attribute-val">{{ member.mem_join_date|date:"d F Y" }}</div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark border-danger text-white">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-danger">Destructive Purge Authorization</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you certain you want to permanently drop the member record for <strong>{{ member.full_name }}</strong>? This cascading operation cannot be undone inside the relational matrix.
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort Operation</button>
+        <form method="POST" action="{% url 'delete_member' member.member_id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger px-4">Execute Purge</button>
+        </form>
       </div>
     </div>
   </div>

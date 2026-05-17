@@ -1,6 +1,8 @@
 {% extends "index.html" %}
-{% block head %}<link rel="stylesheet" href="static/about.css">{% endblock head %}
+{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'about.css' %}">{% endblock head %}
 
+{% block homepage_specific_content %}{% endblock homepage_specific_content %}
 {% block body %}
 <div class="about">
     <h1>We are Sports Pavilion</h1>

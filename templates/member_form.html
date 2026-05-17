@@ -1,0 +1,98 @@
+{% extends "index.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block head %}
+<style>
+  .form-card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    max-width: 650px;
+    margin: 0 auto;
+  }
+  .form-control, .form-select {
+    background-color: #1a1a2e;
+    border: 1px solid #0f3460;
+    color: #fff !important;
+    padding: 12px;
+  }
+  .form-control:focus, .form-select:focus {
+    background-color: #1a1a2e;
+    border-color: #00fff0;
+    box-shadow: 0 0 8px rgba(0, 255, 240, 0.2);
+  }
+  .form-label {
+    font-weight: 500;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+  .btn-save {
+    background: linear-gradient(135deg, #0f3460 0%, #00fff0 100%);
+    border: none;
+    color: #1a1a2e;
+    font-weight: bold;
+    padding: 14px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+  }
+  .btn-save:hover {
+    box-shadow: 0 5px 15px rgba(0, 255, 240, 0.3);
+  }
+</style>
+{% endblock head %}
+
+{% block body %}
+<div class="container py-5">
+  <div class="form-card">
+    <h3 class="fw-bold text-white mb-2 text-center">
+      {% if member %}Modify System <span style="color: #00fff0;">Record</span>{% else %}Register New <span style="color: #e94560;">Member</span>{% endif %}
+    </h3>
+    <p class="text-muted text-center mb-4 small">Update your foundational relational structures securely.</p>
+
+    <form method="POST" action="">
+      {% csrf_token %}
+      
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name" class="form-control" value="{{ member.mem_first_name|default:'' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name" class="form-control" value="{{ member.mem_last_name|default:'' }}" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Communications Anchor</label>
+        <input type="email" name="email" class="form-control" value="{{ member.mem_email|default:'' }}" placeholder="name@domain.com" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Contact Number (1NF Phone Link)</label>
+        <input type="tel" name="phone" class="form-control" value="{{ current_phone }}" placeholder="+923001234567" required>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Assigned Subscription Layout Tier</label>
+        <select name="plan" class="form-select" required>
+          <option value="" disabled {% if not member %}selected{% endif %}>Select membership pricing profile...</option>
+          {% for plan in plans %}
+            <option value="{{ plan.plan_id }}" {% if member.plan.plan_id == plan.plan_id %}selected{% endif %}>
+              {{ plan.plan_name }} — ${{ plan.plan_price }} ({{ plan.duration_months }} Mo)
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-save text-uppercase">Commit Record Alteration 💾</button>
+        <a href="{% url 'member_list' %}" class="btn btn-outline-secondary text-white border-secondary py-2 mt-1">Cancel Changes</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock body %}
