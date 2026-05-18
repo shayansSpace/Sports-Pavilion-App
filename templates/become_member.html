@@ -117,7 +117,7 @@
             <option value="" disabled selected>Choose a subscription layout...</option>
             {% for plan in plans %}
               <option value="{{ plan.plan_id }}">
-                {{ plan.plan_name }} — ${{ plan.plan_price }} ({{ plan.duration_months }} Months)
+                {{ plan.plan_name }} — {{ plan.plan_price }} ({{ plan.duration_months }} Months)
               </option>
             {% endfor %}
           </select>

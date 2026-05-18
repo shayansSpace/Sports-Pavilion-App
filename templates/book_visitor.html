@@ -173,7 +173,7 @@
               </option>
               {% for unit in play_units %}
               <option value="{{ unit.unit_id }}">
-                {{ unit.facility.facility_name }} — Unit {{ unit.unit_num }}
+                {{ unit.facility.facility_name }}{{ unit.unit_num }}
                 (${{ unit.facility.sp_hourly_rate }}/hr)
               </option>
               {% endfor %}

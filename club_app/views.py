@@ -216,23 +216,6 @@ def book_visitor(request):
         )
         BookingPayment.objects.create(payment=payment, booking=booking)
 
-        # ── 6. Build receipt ──────────────────────────────────────────────
-        receipt = {
-            'visitor'    : visitor,
-            'booking'    : booking,
-            'play_unit'  : play_unit,
-            'facility'   : play_unit.facility,
-            'start_time' : start_time,
-            'end_time'   : end_time,
-            'date'       : target_date,
-            'total_price': total_price,
-            'payment'    : payment,
-        }
-        return render(request, 'visitor_booking_receipt.html', {
-            'title'  : 'Booking Receipt',
-            'receipt': receipt,
-        })
-
     # ── GET: show only available units with facility info ─────────────────
     play_units = (
         PlayUnit.objects

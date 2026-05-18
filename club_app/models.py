@@ -198,7 +198,7 @@ class Booking(models.Model):
     play_unit = models.ForeignKey(
         PlayUnit, on_delete=models.CASCADE, related_name='bookings'
     )
-    booking_date = models.DateField(auto_now_add=True)
+    booking_date = models.DateField()
     bk_start_time = models.TimeField()
     bk_end_time = models.TimeField()
 

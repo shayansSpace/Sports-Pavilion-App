@@ -342,20 +342,31 @@
   </head>
 
   <body>
+    {% block navbar %}
+
     <!-- ✅ NAVBAR -->
     <nav class="main-nav">
       <div class="logo">
         <img src="/static/logo.png" alt="Sports Pavilion" />
       </div>
+
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/about">About</a>
       </div>
+
       <div class="auth-buttons">
         {% if request.user.is_authenticated %}
         <span style="color: white; margin-right: 10px">
           👋 {{ request.user.username }}
         </span>
+
+        {% if request.user.is_staff %}
+        <a href="members/" class="btn-admin" style="margin-right: 10px">
+          🛡️ Admin Dashboard
+        </a>
+        {% endif %}
+
         <a href="/logout" class="btn-login">Logout</a>
         {% else %}
         <a href="/login" class="btn-login">Login</a>
@@ -363,11 +374,10 @@
         {% endif %}
       </div>
     </nav>
+    {% endblock navbar %}
 
-    {% block body %}{% endblock body %}
-    {% block homepage_specific_content %} 
-    {% if messages %}
-    {% for message in messages %}
+    {% block body %}{% endblock body %} {% block homepage_specific_content %} 
+    {%if messages %} {% for message in messages %}
     <div
       class="alert alert-success alert-dismissible fade show mt-3"
       role="alert"
@@ -376,8 +386,8 @@
       <strong>Success!</strong> {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    {% endfor %} 
-    {% endif %} 
+    {% endfor %}
+    {% endif %}
     <!-- ✅ HERO SECTION -->
     <section class="hero">
       <h1>Welcome to <span>Sports Pavilion</span></h1>
@@ -386,7 +396,7 @@
         facilities, join memberships, and enjoy world-class amenities.
       </p>
       <div class="hero-buttons">
-        <a href="/services" class="btn-explore">Explore Facilities</a>
+        <a href="/about" class="btn-explore">Explore Facilities</a>
         {% if request.user.is_authenticated %}
         <a href="#" onclick="openSidebar()" class="btn-book">Book Now</a>
         {% else %}
@@ -523,8 +533,7 @@
         🚪 Logout
       </a>
     </div>
-    {% endif %} 
-    {% endblock homepage_specific_content %}
+    {% endif %} {% endblock homepage_specific_content %}
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"

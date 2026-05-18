@@ -33,7 +33,7 @@
   }
   .custom-table th {
     background-color: #1a1a2e !important;
-    color: #e94560 !important;
+    color: #f0c040 !important;
     font-weight: 600;
   }
   .custom-table td {
@@ -51,7 +51,7 @@
     box-shadow: 0 0 10px rgba(0, 255, 240, 0.4);
   }
   .btn-neon-rose {
-    background: linear-gradient(135deg, #0f3460 0%, #e94560 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #f0c040 100%);
     border: none;
     color: white;
   }
@@ -63,6 +63,32 @@
 {% endblock head %}
 
 {% block homepage_specific_content %}{% endblock homepage_specific_content %}
+{% block navbar %}
+<button class="sidebar-toggle" onclick="openSidebar()">MENU</button>
+    <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+      <button class="close-btn" onclick="closeSidebar()">✕</button>
+      <h5 style="margin-top: 20px; margin-bottom: 5px">
+        👋 Hello, <strong>{{ request.user.username }}</strong>!
+      </h5>
+      <hr style="border-color: #0f3460" />
+      <a href="/" class="option-card">
+        <div class="icon">🧳</div>
+        <h6>Home</h6>
+      </a>
+      <a href="/about" class="option-card">
+        <div class="icon">🏅</div>
+        <h6>About</h6>
+      </a>
+      <hr style="border-color: #0f3460" />
+      <a
+        href="/logout"
+        style="color: #f0c040; text-decoration: none; font-size: 14px"
+      >
+        🚪 Logout
+      </a>
+    </div>
+{% endblock navbar %}
 {% block body %}
 <div class="container py-4">
   
