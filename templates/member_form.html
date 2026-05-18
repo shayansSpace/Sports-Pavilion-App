@@ -43,7 +43,8 @@
   }
 </style>
 {% endblock head %}
-
+{% block navbar %}{% endblock navbar %}
+{% block homepage_specific_content %}{% endblock homepage_specific_content %}
 {% block body %}
 <div class="container py-5">
   <div class="form-card">
@@ -89,10 +90,35 @@
       </div>
 
       <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-save text-uppercase">Commit Record Alteration 💾</button>
+        <button type="submit" class="btn btn-save text-uppercase">Save Record</button>
         <a href="{% url 'member_list' %}" class="btn btn-outline-secondary text-white border-secondary py-2 mt-1">Cancel Changes</a>
       </div>
     </form>
   </div>
 </div>
+
+<button class="sidebar-toggle" onclick="openSidebar()">MENU</button>
+  <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <button class="close-btn" onclick="closeSidebar()">✕</button>
+    <h5 style="margin-top: 20px; margin-bottom: 5px">
+      👋 Hello, <strong>{{ request.user.username }}</strong>!
+    </h5>
+    <hr style="border-color: #0f3460" />
+    <a href="/" class="option-card">
+      <div class="icon">🧳</div>
+      <h6>Home</h6>
+    </a>
+    <a href="/about" class="option-card">
+      <div class="icon">🏅</div>
+      <h6>About</h6>
+    </a>
+    <hr style="border-color: #0f3460" />
+    <a
+      href="/logout"
+      style="color: #ff6b6b; text-decoration: none; font-size: 14px"
+    >
+      🚪 Logout
+    </a>
+  </div>
 {% endblock body %}

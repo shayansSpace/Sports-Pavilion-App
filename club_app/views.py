@@ -7,6 +7,9 @@ from django.contrib.auth.decorators import login_required
 from datetime import date, datetime, timedelta
 from django.utils import timezone
 from decimal import Decimal
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 
 from .models import (
     Member, MembershipPlan, MemberPhone,
@@ -172,12 +175,12 @@ def book_visitor(request):
     if request.method == 'POST':
         play_unit_id = request.POST.get('play_unit')
         target_date  = request.POST.get('date')
-        start_time   = request.POST.get('start_time')   # 'HH:MM'
-        end_time     = request.POST.get('end_time')     # 'HH:MM'
+        start_time   = request.POST.get('start_time')   
+        end_time     = request.POST.get('end_time')     
 
         play_unit = get_object_or_404(PlayUnit, pk=play_unit_id)
 
-        # ── Conflict check ────────────────────────────────────────────────
+        # Conflict check
         conflict = Booking.objects.filter(
             play_unit_id   = play_unit_id,
             booking_date   = target_date,
@@ -185,17 +188,16 @@ def book_visitor(request):
             bk_end_time__gt   = start_time,
         ).exists()
         if conflict:
-            messages.error(request, "This time slot is already occupied!")
-            return redirect('book_visitor')
+            return JsonResponse({'success': False, 'error': "This time slot is already occupied!"})
 
-        # ── 1. Visitor profile ────────────────────────────────────────────
+        # 1. Visitor profile
         visitor = Visitor.objects.create(
             vis_first_name = request.POST.get('first_name'),
             vis_last_name  = request.POST.get('last_name'),
         )
         VisitorPhone.objects.create(visitor=visitor, phone_number=request.POST.get('phone'))
 
-        # ── 2. Core booking row ───────────────────────────────────────────
+        # 2. Core booking row
         booking = Booking.objects.create(
             play_unit     = play_unit,
             booking_date  = target_date,
@@ -203,26 +205,26 @@ def book_visitor(request):
             bk_end_time   = end_time,
         )
 
-        # ── 3. 3NF junction: tie booking to visitor ───────────────────────
+        # 3. 3NF junction: tie booking to visitor
         VisitorBooking.objects.create(booking=booking, visitor=visitor)
 
-        # ── 4. Calculate price ────────────────────────────────────────────
+        # 4. Calculate price
         total_price = _calculate_price(play_unit, start_time, end_time)
 
-        # ── 5. Payment record (3NF split) ─────────────────────────────────
+        # 5. Payment record
         payment = Payment.objects.create(
             amount         = total_price,
             payment_method = request.POST.get('payment_method', 'Cash'),
         )
         BookingPayment.objects.create(payment=payment, booking=booking)
 
-    # ── GET: show only available units with facility info ─────────────────
-    play_units = (
-        PlayUnit.objects
-        .filter(unit_status='Available')
-        .select_related('facility')          # pulls in sp_hourly_rate for display
-        .order_by('facility__facility_name', 'unit_num')
-    )
+        return JsonResponse({
+            'success': True,
+            'booking_id': booking.booking_id,
+            'message': "Your registration is completely done!"
+        })
+
+    play_units = PlayUnit.objects.filter(unit_status='Available').select_related('facility').order_by('facility__facility_name', 'unit_num')
     return render(request, 'book_visitor.html', {'play_units': play_units})
 
 
@@ -233,8 +235,7 @@ def book_visitor(request):
 def book_member(request):
     current_member = Member.objects.filter(mem_email=request.user.email).first()
     if not current_member:
-        messages.error(request, "Access Denied. You must subscribe to a plan first!")
-        return redirect('become_member')
+        return JsonResponse({'success': False, 'error': "Access Denied. You must subscribe to a plan first!"})
 
     if request.method == 'POST':
         play_unit_id = request.POST.get('play_unit')
@@ -244,17 +245,16 @@ def book_member(request):
 
         play_unit = get_object_or_404(PlayUnit, pk=play_unit_id)
 
-        # ── Conflict check ────────────────────────────────────────────────
+        # Conflict check
         if Booking.objects.filter(
             play_unit_id      = play_unit_id,
             booking_date      = target_date,
             bk_start_time__lt = end_time,
             bk_end_time__gt   = start_time,
         ).exists():
-            messages.error(request, "Slot already booked.")
-            return redirect('book_member')
+            return JsonResponse({'success': False, 'error': "Slot already booked."})
 
-        # ── 1. Core booking row ───────────────────────────────────────────
+        # 1. Core booking row
         booking = Booking.objects.create(
             play_unit     = play_unit,
             booking_date  = target_date,
@@ -262,30 +262,16 @@ def book_member(request):
             bk_end_time   = end_time,
         )
 
-        # ── 2. 3NF junction: tie booking to member ────────────────────────
+        # 2. 3NF junction: tie booking to member
         MemberBooking.objects.create(booking=booking, member=current_member)
 
-        # ── 3. Build receipt (no price shown for members) ─────────────────
-        receipt = {
-            'member'    : current_member,
-            'booking'   : booking,
-            'play_unit' : play_unit,
-            'facility'  : play_unit.facility,
-            'start_time': start_time,
-            'end_time'  : end_time,
-            'date'      : target_date,
-        }
-        return render(request, 'member_booking_receipt.html', {
-            'title'  : 'Booking Confirmation',
-            'receipt': receipt,
+        return JsonResponse({
+            'success': True,
+            'booking_id': booking.booking_id,
+            'message': "Member booking reservation successful!"
         })
 
-    # ── GET: show all units (members get access to all, not just Available) ─
-    play_units = (
-        PlayUnit.objects
-        .select_related('facility')
-        .order_by('facility__facility_name', 'unit_num')
-    )
+    play_units = PlayUnit.objects.select_related('facility').order_by('facility__facility_name', 'unit_num')
     return render(request, 'book_member.html', {'play_units': play_units})
 
 @login_required(login_url='login')
@@ -393,3 +379,45 @@ def delete_member(request, member_id):
         member.delete()  # On Cascade database directives drop phone links automatically
         messages.success(request, f"Record for {name} completely purged from database.")
     return redirect('member_list')
+
+def download_receipt(request, booking_id):
+    """
+    Renders an HTML layout on the server-side and converts it cleanly to a downloadable PDF.
+    """
+    booking = get_object_or_404(Booking, pk=booking_id)
+    
+    # Trace 3NF relationships to check if user is a Visitor or a Member
+    visitor_link = VisitorBooking.objects.filter(booking=booking).select_related('visitor').first()
+    member_link  = MemberBooking.objects.filter(booking=booking).select_related('member').first()
+    
+    context = {
+        'booking': booking,
+        'play_unit': booking.play_unit,
+        'facility': booking.play_unit.facility,
+    }
+    
+    if visitor_link:
+        context['user_type'] = 'Visitor'
+        context['customer_name'] = f"{visitor_link.visitor.vis_first_name} {visitor_link.visitor.vis_last_name}"
+        # Extract billing info
+        pay_link = BookingPayment.objects.filter(booking=booking).select_related('payment').first()
+        context['amount_paid'] = pay_link.payment.amount if pay_link else 0.0
+        context['payment_method'] = pay_link.payment.payment_method if pay_link else "Cash"
+    else:
+        context['user_type'] = 'Member'
+        context['customer_name'] = f"{member_link.member.mem_first_name} {member_link.member.mem_last_name}" if member_link else "Valued Member"
+        context['amount_paid'] = None # Hides price column for club members
+        context['payment_method'] = "Membership Privilege Plan"
+
+    # Convert HTML file markup cleanly into string data context
+    html_string = render_to_string('receipt_pdf_template.html', context)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Receipt_B{booking.booking_id}.pdf"'
+    
+    # Process html content string directly into response binary file stream
+    pisa_status = pisa.CreatePDF(html_string, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Fatal error compilation failed within template matrix.', status=500)
+    return response

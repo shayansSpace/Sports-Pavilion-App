@@ -33,19 +33,20 @@
 {% endblock head %}
 
 {% block homepage_specific_content %}{% endblock homepage_specific_content %}
+{% block navbar %}{% endblock navbar %}
 
 {% block body %}
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-      <a href="{% url 'member_list' %}" class="text-muted text-decoration-none small">← Return to Main Roster</a>
+      <a href="{% url 'member_list' %}" class="text-muted text-decoration-none small">← Return to Admin Dashboard</a>
       <h2 class="text-white fw-bold mt-1">Profile Workspace</h2>
     </div>
     
     <div>
       <a href="{% url 'edit_member' member.member_id %}" class="btn btn-outline-info px-4 me-2">Edit Credentials</a>
       <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-        Purge Record
+        Delete Record
       </button>
     </div>
   </div>

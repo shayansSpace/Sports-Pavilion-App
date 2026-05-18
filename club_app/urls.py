@@ -16,5 +16,7 @@ urlpatterns = [
     path('members/profile/<int:member_id>/', views.member_profile, name='member_profile'),
     path('members/add/', views.member_upsert, name='add_member'),
     path('members/edit/<int:member_id>/', views.member_upsert, name='edit_member'),
-    path('members/delete/<int:member_id>/', views.delete_member, name='delete_member')
+    path('members/delete/<int:member_id>/', views.delete_member, name='delete_member'),
+    #RECIEPT GENERATION
+    path('download-receipt/<int:booking_id>/', views.download_receipt, name='download_receipt'),
 ]

@@ -104,7 +104,7 @@
   <div class="dashboard-wrapper">
     <div class="row align-items-center mb-4">
       <div class="col-md-6">
-        <h3 class="fw-bold mb-0 text-white">Member <span style="color: #e94560;">Management</span> Console</h3>
+        <h3 class="fw-bold mb-0 text-white">Member <span style="color: #f0c040;">Management</span> Console</h3>
       </div>
       <div class="col-md-6 text-md-end mt-3 mt-md-0">
         <a href="{% url 'add_member' %}" class="btn btn-neon-rose px-4 fw-bold">+ Add New Member</a>
@@ -122,51 +122,51 @@
     </form>
 
     <div class="table-responsive">
-      <table class="table custom-table align-middle">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Full Name</th>
-            <th scope="col">Email Address</th>
-            <th scope="col">Primary Phone</th>
-            <th scope="col">Subscription Tier</th>
-            <th scope="col">Join Date</th>
-            <th scope="col" class="text-center">Operations</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in members %}
-          <tr>
-            <th scope="row" style="color: #00fff0 !important;">{{ m.formatted_id }}</th>
-            <td class="fw-bold">{{ m.full_name }}</td>
-            <td>{{ m.mem_email }}</td>
-            <td>
-              {% if m.phones.all %}
-                {{ m.phones.first.phone_number }}
-              {% else %}
-                <span class="text-muted italic small">None</span>
-              {% endif %}
-            </td>
-            <td>
-              <span class="badge {% if 'Premium' in m.plan.plan_name or 'Elite' in m.plan.plan_name %}bg-warning text-dark{% else %}bg-secondary text-light{% endif %}">
-                {{ m.plan.plan_name|default:"No Active Subscription" }}
-              </span>
-            </td>
-            <td>{{ m.mem_join_date|date:"d M Y" }}</td>
-            <td class="text-center">
-              <a href="{% url 'member_profile' m.member_id %}" class="btn btn-sm btn-neon-cyan px-3">View Control Cockpit</a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="7" class="text-center text-muted py-5">
-              No matching records discovered inside the database framework.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <table class="table custom-table align-middle">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Full Name</th>
+        <th scope="col">Email Address</th>
+        <th scope="col">Primary Phone</th>
+        <th scope="col">Subscription Tier</th>
+        <th scope="col">Join Date</th>
+        <th scope="col" class="text-center">Operations</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in members %}
+      <tr style="background-color: #2b2e31; color: #ececec;">
+        <th scope="row">{{ m.formatted_id }}</th>
+        <td class="fw-bold">{{ m.full_name }}</td>
+        <td>{{ m.mem_email }}</td>
+        <td>
+          {% if m.phones.all %}
+            {{ m.phones.first.phone_number }}
+          {% else %}
+            <span class="text-muted italic small">None</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge {% if 'Premium' in m.plan.plan_name or 'Elite' in m.plan.plan_name %}bg-warning text-dark{% else %}bg-secondary text-light{% endif %}">
+            {{ m.plan.plan_name|default:"No Active Subscription" }}
+          </span>
+        </td>
+        <td>{{ m.mem_join_date|date:"d M Y" }}</td>
+        <td class="text-center">
+          <a href="{% url 'member_profile' m.member_id %}" class="btn btn-sm btn-primary px-3">Actions</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr style="background-color: #2b2e31;">
+        <td colspan="7" class="text-center text-muted py-5">
+          No matching records discovered inside the database framework.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
   </div>
 </div>
 {% endblock body %}
