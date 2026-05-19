@@ -114,7 +114,7 @@
             {% for unit in play_units %}
               <option value="{{ unit.unit_id }}">
                 {{ unit.facility.facility_name }} — Unit {{ unit.unit_num }} 
-                {% if unit.unit_status != 'Available' %} (Occupied - Overwrite Privileges Apply) {% endif %}
+                {% if unit.unit_status != 'Available' %} (Occupied) {% endif %}
               </option>
             {% endfor %}
           </select>
