@@ -1,25 +1,275 @@
 {% extends "index.html" %}
 {% load static %}
-{% block head %}<link rel="stylesheet" href="{% static 'about.css' %}">{% endblock head %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'about.css' %}">
+
+<style>
+    .about {
+        padding: 120px 40px 60px;
+        background: #f5f7fa;
+        min-height: 100vh;
+    }
+
+    .about-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .about-header h1 {
+        font-size: 52px;
+        font-weight: 800;
+        color: #1a1a2e;
+        margin-bottom: 20px;
+    }
+
+    .about-header p {
+        max-width: 850px;
+        margin: auto;
+        color: #555;
+        font-size: 18px;
+        line-height: 1.8;
+    }
+
+    /* ───── Facilities Section ───── */
+    .facilities-title {
+        text-align: center;
+        margin: 70px 0 40px;
+    }
+
+    .facilities-title h2 {
+        font-size: 40px;
+        font-weight: 800;
+        color: #1a1a2e;
+    }
+
+    .facilities-title p {
+        color: #666;
+        margin-top: 10px;
+    }
+
+    .facility-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        transition: 0.3s ease;
+        height: 100%;
+    }
+
+    .facility-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .facility-image {
+        height: 220px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 75px;
+        color: white;
+    }
+
+    .facility-content {
+        padding: 25px;
+    }
+
+    .facility-content h4 {
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #1a1a2e;
+    }
+
+    .facility-content p {
+        color: #666;
+        line-height: 1.7;
+        font-size: 15px;
+    }
+
+    /* Gradient backgrounds */
+    .bg-paddle {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+    }
+
+    .bg-cricket {
+        background: linear-gradient(135deg, #43a047, #1b5e20);
+    }
+
+    .bg-snooker {
+        background: linear-gradient(135deg, #2e7d32, #004d40);
+    }
+
+    .bg-bowling {
+        background: linear-gradient(135deg, #8e24aa, #4a148c);
+    }
+
+    .bg-tt {
+        background: linear-gradient(135deg, #03a9f4, #01579b);
+    }
+
+    .bg-gym {
+        background: linear-gradient(135deg, #ef5350, #b71c1c);
+    }
+
+    .bg-gaming {
+        background: linear-gradient(135deg, #3f51b5, #1a237e);
+    }
+
+    /* Responsive */
+    @media(max-width:768px){
+        .about-header h1{
+            font-size: 38px;
+        }
+
+        .facilities-title h2{
+            font-size: 32px;
+        }
+    }
+</style>
+{% endblock head %}
 
 {% block homepage_specific_content %}{% endblock homepage_specific_content %}
+
 {% block body %}
+
 <div class="about">
-    <h1>We are Sports Pavilion</h1>
-    <p>
-        Sports Pavilion is your home for soccer, cricket, football, and futsal. Our
-        courts are built for both casual play and competitive matches, with flexible
-        booking options that fit your schedule.
-    </p>
-    <p>
-        You can book a court in minutes for a one-off game, or become a member for
-        priority slots, member pricing, and access to community events. Whether you
-        are training a team, organizing a friendly match, or just looking for a
-        great place to play, we make it simple to get on the court.
-    </p>
-    <p>
-        From quick bookings to full membership, Sports Pavilion is here to help you
-        play more, connect with other players, and enjoy the game you love.
-    </p>
+
+    <!-- ABOUT HEADER -->
+    <div class="about-header">
+        <h1>We are Sports Pavilion</h1>
+
+        <p>
+            Sports Pavilion is your home for soccer, cricket, football, and futsal.
+            Our courts are built for both casual play and competitive matches, with
+            flexible booking options that fit your schedule.
+        </p>
+
+        <p>
+            You can book a court in minutes for a one-off game, or become a member
+            for priority slots, member pricing, and access to community events.
+            Whether you are training a team, organizing a friendly match, or just
+            looking for a great place to play, we make it simple to get on the court.
+        </p>
+
+        <p>
+            From quick bookings to full membership, Sports Pavilion is here to help
+            you play more, connect with other players, and enjoy the game you love.
+        </p>
+    </div>
+
+    <!-- FACILITIES TITLE -->
+    <div class="facilities-title">
+        <h2>Our Facilities</h2>
+        <p>
+            Explore premium sports, gaming and fitness experiences under one roof.
+        </p>
+    </div>
+
+    <!-- FACILITIES GRID -->
+    <div class="container">
+        <div class="row g-4">
+
+            <!-- Paddle -->
+            <div class="col-lg-4 col-md-6">
+                <div class="facility-card">
+                    <div class="facility-image bg-paddle">🎾</div>
+                    <div class="facility-content">
+                        <h4>Paddle Court</h4>
+                        <p>
+                            Modern indoor paddle courts with premium flooring and
+                            professional lighting for competitive and casual games.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indoor Cricket -->
+            <div class="col-lg-4 col-md-6">
+                <div class="facility-card">
+                    <div class="facility-image bg-cricket">🏏</div>
+                    <div class="facility-content">
+                        <h4>Indoor Cricket</h4>
+                        <p>
+                            High quality indoor cricket lanes and practice areas
+                            perfect for training sessions and friendly matches.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Snooker -->
+            <div class="col-lg-4 col-md-6">
+                <div class="facility-card">
+                    <div class="facility-image bg-snooker">🎱</div>
+                    <div class="facility-content">
+                        <h4>Snooker Lounge</h4>
+                        <p>
+                            Relax and compete with friends on premium snooker tables
+                            in a stylish and comfortable environment.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bowling -->
+            <div class="col-lg-4 col-md-6">
+                <div class="facility-card">
+                    <div class="facility-image bg-bowling">🎳</div>
+                    <div class="facility-content">
+                        <h4>Bowling Arena</h4>
+                        <p>
+                            Enjoy exciting bowling matches with friends and family on
+                            our modern entertainment lanes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Tennis -->
+            <div class="col-lg-4 col-md-6">
+                <div class="facility-card">
+                    <div class="facility-image bg-tt">🏓</div>
+                    <div class="facility-content">
+                        <h4>Table Tennis</h4>
+                        <p>
+                            Fast-paced indoor table tennis courts designed for both
+                            casual fun and professional practice.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gym -->
+            <div class="col-lg-4 col-md-6">
+                <div class="facility-card">
+                    <div class="facility-image bg-gym">💪</div>
+                    <div class="facility-content">
+                        <h4>Fitness Gym</h4>
+                        <p>
+                            Fully equipped gym with modern workout machines, free
+                            weights and experienced trainers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gaming Cafe -->
+            <div class="col-lg-4 col-md-6 mx-auto">
+                <div class="facility-card">
+                    <div class="facility-image bg-gaming">🎮</div>
+                    <div class="facility-content">
+                        <h4>Gaming Cafe</h4>
+                        <p>
+                            High-performance gaming systems and console zones with a
+                            fun cafe atmosphere for gamers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>
+
 {% endblock body %}

@@ -6,6 +6,7 @@
   <title>Sports Pavilion - Become a Member</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>  
   <style>
     body {
       background-color: #1a1a2e;
@@ -72,6 +73,65 @@
     .brand-accent {
       color: #f0c040;
     }
+
+    /* NEW CHANGE: Styles for the printable PDF template. 
+       Positioned completely off-screen so it won't impact your dark dashboard UI */
+    #pdf-report-template {
+      width: 550px;
+      padding: 40px;
+      background: #ffffff;
+      color: #222222;
+      font-family: 'Arial', sans-serif;
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+    }
+    .pdf-header {
+      text-align: center;
+      border-bottom: 3px double #16213e;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+    .pdf-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #16213e;
+      letter-spacing: 1px;
+    }
+    .pdf-section {
+      margin-bottom: 20px;
+    }
+    .pdf-section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f3460;
+      text-transform: uppercase;
+      border-bottom: 1px solid #dddddd;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+    .pdf-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .pdf-label {
+      color: #555555;
+      font-weight: 500;
+    }
+    .pdf-value {
+      color: #000000;
+      font-weight: 600;
+    }
+    .pdf-footer {
+      text-align: center;
+      border-top: 1px solid #eeeeee;
+      margin-top: 40px;
+      padding-top: 15px;
+      font-size: 11px;
+      color: #777777;
+    }
   </style>
 </head>
 <body>
@@ -92,7 +152,7 @@
         <p class="text-muted">Fill out your profile details to activate your premium club access.</p>
       </div>
 
-      <form method="POST" action="{% url 'become_member' %}">
+      <form method="POST" action="{% url 'become_member' %}" id="membershipForm">
         {% csrf_token %}
         
         <div class="row mb-3">
@@ -143,6 +203,74 @@
     </div>
   </div>
 
+  <div id="pdf-report-template">
+    <div class="pdf-header">
+      <div class="pdf-title">SPORTS PAVILION</div>
+      <div style="font-size: 12px; color: #666; text-transform: uppercase; margin-top: 5px;">Membership Activation Summary</div>
+    </div>
+    
+    <div class="pdf-section">
+      <div class="pdf-section-title">Personal Information</div>
+      <div class="pdf-row"><span class="pdf-label">Full Name:</span><span class="pdf-value" id="pdf_name"></span></div>
+      <div class="pdf-row"><span class="pdf-label">Contact Number:</span><span class="pdf-value" id="pdf_phone"></span></div>
+    </div>
+
+    <div class="pdf-section">
+      <div class="pdf-section-title">Subscription Structure</div>
+      <div class="pdf-row"><span class="pdf-label">Membership Tier Details:</span><span class="pdf-value" id="pdf_plan"></span></div>
+      <div class="pdf-row"><span class="pdf-label">Payment Intention Method:</span><span class="pdf-value" id="pdf_payment"></span></div>
+      <div class="pdf-row"><span class="pdf-label">Generated Timestamp:</span><span class="pdf-value" id="pdf_date"></span></div>
+    </div>
+
+    <div class="pdf-footer">
+      <p>Thank you for enrolling at Sports Pavilion. Please present this document at the reception desk.</p>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.getElementById('membershipForm').addEventListener('submit', function(event) {
+      // 1. Pause form submission so the browser doesn't change pages before the PDF is created
+      event.preventDefault();
+
+      // 2. Gather values from the input inputs
+      const fName = document.getElementById('first_name').value;
+      const lName = document.getElementById('last_name').value;
+      const phoneNum = document.getElementById('phone').value;
+      const payMethod = document.getElementById('payment_method').value;
+      
+      // Get the readable string text option inside the drop down instead of just the plan ID number value
+      const planDropdown = document.getElementById('plan');
+      const selectedPlanText = planDropdown.options[planDropdown.selectedIndex].text;
+
+      // 3. Insert form text data directly into the blank PDF template layout targets
+      document.getElementById('pdf_name').innerText = fName + " " + lName;
+      document.getElementById('pdf_phone').innerText = phoneNum;
+      document.getElementById('pdf_plan').innerText = selectedPlanText;
+      document.getElementById('pdf_payment').innerText = payMethod;
+      document.getElementById('pdf_date').innerText = new Date().toLocaleString();
+
+      // 4. Configure PDF layout scale settings
+      const elementToPrint = document.getElementById('pdf-report-template');
+      const printOptions = {
+        margin:       0.5,
+        filename:     'Pavilion_Membership_' + fName + '_' + lName + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, logging: false },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      // 5. Fire PDF rendering engine, and when it successfully finishes saving, fire the form submission up to views.py
+      html2pdf().from(elementToPrint).set(printOptions).save().then(() => {
+        // Resume traditional form POST handling towards your views.py, firing the clean page-redirect structure!
+        document.getElementById('membershipForm').submit();
+      }).catch((err) => {
+        console.error("PDF engine failure:", err);
+        // Fallback safety feature: Submit the form normally if the PDF generator encounters an unexpected issue
+        document.getElementById('membershipForm').submit();
+      });
+    });
+  </script>
 </body>
 </html>
