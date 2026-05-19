@@ -154,8 +154,8 @@ class Command(BaseCommand):
         )
         if created:
             StaffPhone.objects.create(staff=trainer, phone_number='0323767654')
-            trainer.maintains_equipment.add(eq1, eq2)
-            trainer.maintains_facilities.add(f1)
+            # trainer.maintains_equipment.add(eq1, eq2)
+            # trainer.maintains_facilities.add(f1)
 
         trainer, created = GymTrainer.objects.get_or_create(
             staff_first_name='Shiza',
@@ -169,8 +169,8 @@ class Command(BaseCommand):
         )
         if created:
             StaffPhone.objects.create(staff=trainer, phone_number='03232765422')
-            trainer.maintains_equipment.add(eq1, eq2)
-            trainer.maintains_facilities.add(f1)
+            # trainer.maintains_equipment.add(eq1, eq2)
+            # trainer.maintains_facilities.add(f1)
 
         trainer, created = GymTrainer.objects.get_or_create(
             staff_first_name='Aaron',
@@ -184,8 +184,8 @@ class Command(BaseCommand):
         )
         if created:
             StaffPhone.objects.create(staff=trainer, phone_number='03232265422')
-            trainer.maintains_equipment.add(eq1, eq2)
-            trainer.maintains_facilities.add(f1)
+            # trainer.maintains_equipment.add(eq1, eq2)
+            # trainer.maintains_facilities.add(f1)
 
         trainer, created = GymTrainer.objects.get_or_create(
             staff_first_name='Farukh',
@@ -199,8 +199,8 @@ class Command(BaseCommand):
         )
         if created:
             StaffPhone.objects.create(staff=trainer, phone_number='03232765422')
-            trainer.maintains_equipment.add(eq1, eq2)
-            trainer.maintains_facilities.add(f1)
+            # trainer.maintains_equipment.add(eq1, eq2)
+            # trainer.maintains_facilities.add(f1)
 
         self.stdout.write(self.style.SUCCESS('Database populated successfully with stable mock entries!'))
 

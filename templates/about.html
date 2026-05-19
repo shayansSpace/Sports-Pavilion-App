@@ -2,274 +2,457 @@
 {% load static %}
 
 {% block head %}
-<link rel="stylesheet" href="{% static 'about.css' %}">
-
 <style>
-    .about {
-        padding: 120px 40px 60px;
-        background: #f5f7fa;
-        min-height: 100vh;
-    }
 
-    .about-header {
-        text-align: center;
-        margin-bottom: 60px;
-    }
+  .about-page {
+    background: #f5f5f5;
+    color: #222;
+    font-family: Arial, sans-serif;
+    padding-top: 80px;
+  }
 
-    .about-header h1 {
-        font-size: 52px;
-        font-weight: 800;
-        color: #1a1a2e;
-        margin-bottom: 20px;
-    }
+  /* ── ABOUT HEADER ── */
+  .about-header {
+    background: #1a1a2e;
+    color: white;
+    text-align: center;
+    padding: 60px 24px;
+  }
 
-    .about-header p {
-        max-width: 850px;
-        margin: auto;
-        color: #555;
-        font-size: 18px;
-        line-height: 1.8;
-    }
+  .about-header h1 {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
 
-    /* ───── Facilities Section ───── */
-    .facilities-title {
-        text-align: center;
-        margin: 70px 0 40px;
-    }
+  .about-header h1 span {
+    color: #f0c040;
+  }
 
-    .facilities-title h2 {
-        font-size: 40px;
-        font-weight: 800;
-        color: #1a1a2e;
-    }
+  .about-header p {
+    max-width: 650px;
+    margin: 0 auto 12px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #bbb;
+  }
 
-    .facilities-title p {
-        color: #666;
-        margin-top: 10px;
-    }
+  /* ── FACILITIES SECTION ── */
+  .facilities-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 24px;
+  }
 
-    .facility-card {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        transition: 0.3s ease;
-        height: 100%;
-    }
+  .section-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
 
-    .facility-card:hover {
-        transform: translateY(-10px);
-    }
+  .section-subheading {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 36px;
+  }
 
-    .facility-image {
-        height: 220px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 75px;
-        color: white;
-    }
+  /* ── FACILITIES GRID ── */
+  .fac-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
 
-    .facility-content {
-        padding: 25px;
-    }
+  @media (max-width: 900px) { .fac-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .fac-grid { grid-template-columns: 1fr; } }
 
-    .facility-content h4 {
-        font-weight: 700;
-        margin-bottom: 12px;
-        color: #1a1a2e;
-    }
+  /* ── FACILITY CARD ── */
+  .fac-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
 
-    .facility-content p {
-        color: #666;
-        line-height: 1.7;
-        font-size: 15px;
-    }
+  .fac-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
 
-    /* Gradient backgrounds */
-    .bg-paddle {
-        background: linear-gradient(135deg, #ff9800, #ff5722);
-    }
+  .fac-card-top {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+  }
 
-    .bg-cricket {
-        background: linear-gradient(135deg, #43a047, #1b5e20);
-    }
+  .top-paddle  { background: linear-gradient(135deg, #ff9800, #ff5722); }
+  .top-cricket { background: linear-gradient(135deg, #43a047, #1b5e20); }
+  .top-snooker { background: linear-gradient(135deg, #2e7d32, #004d40); }
+  .top-bowling { background: linear-gradient(135deg, #8e24aa, #4a148c); }
+  .top-tt      { background: linear-gradient(135deg, #039be5, #01579b); }
+  .top-gym     { background: linear-gradient(135deg, #e53935, #b71c1c); }
+  .top-gaming  { background: linear-gradient(135deg, #3949ab, #1a237e); }
 
-    .bg-snooker {
-        background: linear-gradient(135deg, #2e7d32, #004d40);
-    }
+  .fac-card-body {
+    padding: 18px 20px 20px;
+  }
 
-    .bg-bowling {
-        background: linear-gradient(135deg, #8e24aa, #4a148c);
-    }
+  .fac-card-body h4 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
 
-    .bg-tt {
-        background: linear-gradient(135deg, #03a9f4, #01579b);
-    }
+  .fac-card-body p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
 
-    .bg-gym {
-        background: linear-gradient(135deg, #ef5350, #b71c1c);
-    }
+  .rate-badge {
+    display: inline-block;
+    font-size: 12px;
+    background: #f0f4ff;
+    color: #1a1a2e;
+    border: 1px solid #d0d8f0;
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
 
-    .bg-gaming {
-        background: linear-gradient(135deg, #3f51b5, #1a237e);
-    }
+  /* ── PLAY UNITS TABLE ── */
+  .units-block {
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+  }
 
-    /* Responsive */
-    @media(max-width:768px){
-        .about-header h1{
-            font-size: 38px;
-        }
+  .units-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 8px;
+  }
 
-        .facilities-title h2{
-            font-size: 32px;
-        }
-    }
+  .unit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+  }
+
+  .unit-row:last-child { border-bottom: none; }
+
+  .unit-name { color: #333; font-weight: 500; }
+
+  .unit-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  .status-available   { background: #e8f5e9; color: #2e7d32; }
+  .status-occupied    { background: #fce4ec; color: #c62828; }
+  .status-maintenance { background: #fff8e1; color: #f57f17; }
+
+  /* ── READY TO PLAY ── */
+  .cta-section {
+    background: #1a1a2e;
+    color: white;
+    text-align: center;
+    padding: 60px 24px;
+  }
+
+  .cta-section h2 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .cta-section p {
+    font-size: 15px;
+    color: #aaa;
+    margin-bottom: 28px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .cta-btn-gold { background: #f0c040; color: #1a1a2e; }
+  .cta-btn-gold:hover { background: #d4a017; color: #1a1a2e; }
+
+  .cta-btn-outline { background: transparent; color: white; border: 2px solid white; }
+  .cta-btn-outline:hover { background: white; color: #1a1a2e; }
+
+  /* ── FOOTER ── */
+  .about-footer {
+    background: #111;
+    color: #555;
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+  }
+
 </style>
 {% endblock head %}
 
+
 {% block homepage_specific_content %}{% endblock homepage_specific_content %}
 
+
 {% block body %}
+<div class="about-page">
 
-<div class="about">
+  <!-- HEADER -->
+  <div class="about-header">
+    <h1>About <span>Sports Pavilion</span></h1>
+    <p>
+      Sports Pavilion is your home for sports, fitness, and recreation.
+      We offer a wide range of facilities for everyone — from serious athletes
+      to casual players just looking to have fun.
+    </p>
+    <p>
+      Book a slot as a walk-in visitor, or become a member for priority access
+      and exclusive benefits. We are open 7 days a week.
+    </p>
+  </div>
 
-    <!-- ABOUT HEADER -->
-    <div class="about-header">
-        <h1>We are Sports Pavilion</h1>
 
-        <p>
-            Sports Pavilion is your home for soccer, cricket, football, and futsal.
-            Our courts are built for both casual play and competitive matches, with
-            flexible booking options that fit your schedule.
-        </p>
+  <!-- FACILITIES -->
+  <div class="facilities-section">
 
-        <p>
-            You can book a court in minutes for a one-off game, or become a member
-            for priority slots, member pricing, and access to community events.
-            Whether you are training a team, organizing a friendly match, or just
-            looking for a great place to play, we make it simple to get on the court.
-        </p>
+    <h2 class="section-heading">Our Facilities</h2>
+    <p class="section-subheading">We have 7 facilities available for booking. Click any unit to reserve your slot.</p>
 
-        <p>
-            From quick bookings to full membership, Sports Pavilion is here to help
-            you play more, connect with other players, and enjoy the game you love.
-        </p>
-    </div>
+    <div class="fac-grid">
 
-    <!-- FACILITIES TITLE -->
-    <div class="facilities-title">
-        <h2>Our Facilities</h2>
-        <p>
-            Explore premium sports, gaming and fitness experiences under one roof.
-        </p>
-    </div>
-
-    <!-- FACILITIES GRID -->
-    <div class="container">
-        <div class="row g-4">
-
-            <!-- Paddle -->
-            <div class="col-lg-4 col-md-6">
-                <div class="facility-card">
-                    <div class="facility-image bg-paddle">🎾</div>
-                    <div class="facility-content">
-                        <h4>Paddle Court</h4>
-                        <p>
-                            Modern indoor paddle courts with premium flooring and
-                            professional lighting for competitive and casual games.
-                        </p>
-                    </div>
-                </div>
+      <!-- PADDLE -->
+      <div class="fac-card">
+        <div class="fac-card-top top-paddle">🎾</div>
+        <div class="fac-card-body">
+          <h4>Paddle Court</h4>
+          <span class="rate-badge">Rs. 1,200 / hour</span>
+          <p>Indoor glass paddle courts with professional flooring and lighting. Rackets available for hire.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">Court A</span>
+              <span class="unit-status status-available">Available</span>
             </div>
-
-            <!-- Indoor Cricket -->
-            <div class="col-lg-4 col-md-6">
-                <div class="facility-card">
-                    <div class="facility-image bg-cricket">🏏</div>
-                    <div class="facility-content">
-                        <h4>Indoor Cricket</h4>
-                        <p>
-                            High quality indoor cricket lanes and practice areas
-                            perfect for training sessions and friendly matches.
-                        </p>
-                    </div>
-                </div>
+            <div class="unit-row">
+              <span class="unit-name">Court B</span>
+              <span class="unit-status status-available">Available</span>
             </div>
-
-            <!-- Snooker -->
-            <div class="col-lg-4 col-md-6">
-                <div class="facility-card">
-                    <div class="facility-image bg-snooker">🎱</div>
-                    <div class="facility-content">
-                        <h4>Snooker Lounge</h4>
-                        <p>
-                            Relax and compete with friends on premium snooker tables
-                            in a stylish and comfortable environment.
-                        </p>
-                    </div>
-                </div>
+            <div class="unit-row">
+              <span class="unit-name">Court C</span>
+              <span class="unit-status status-occupied">Occupied</span>
             </div>
-
-            <!-- Bowling -->
-            <div class="col-lg-4 col-md-6">
-                <div class="facility-card">
-                    <div class="facility-image bg-bowling">🎳</div>
-                    <div class="facility-content">
-                        <h4>Bowling Arena</h4>
-                        <p>
-                            Enjoy exciting bowling matches with friends and family on
-                            our modern entertainment lanes.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Tennis -->
-            <div class="col-lg-4 col-md-6">
-                <div class="facility-card">
-                    <div class="facility-image bg-tt">🏓</div>
-                    <div class="facility-content">
-                        <h4>Table Tennis</h4>
-                        <p>
-                            Fast-paced indoor table tennis courts designed for both
-                            casual fun and professional practice.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gym -->
-            <div class="col-lg-4 col-md-6">
-                <div class="facility-card">
-                    <div class="facility-image bg-gym">💪</div>
-                    <div class="facility-content">
-                        <h4>Fitness Gym</h4>
-                        <p>
-                            Fully equipped gym with modern workout machines, free
-                            weights and experienced trainers.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gaming Cafe -->
-            <div class="col-lg-4 col-md-6 mx-auto">
-                <div class="facility-card">
-                    <div class="facility-image bg-gaming">🎮</div>
-                    <div class="facility-content">
-                        <h4>Gaming Cafe</h4>
-                        <p>
-                            High-performance gaming systems and console zones with a
-                            fun cafe atmosphere for gamers.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
+          </div>
         </div>
+      </div>
+
+      <!-- INDOOR CRICKET -->
+      <div class="fac-card">
+        <div class="fac-card-top top-cricket">🏏</div>
+        <div class="fac-card-body">
+          <h4>Indoor Cricket</h4>
+          <span class="rate-badge">Rs. 1,500 / hour</span>
+          <p>High-quality indoor nets and lanes for batting and bowling practice. All skill levels welcome.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">Lane 1</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Lane 2</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Lane 3</span>
+              <span class="unit-status status-maintenance">Maintenance</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SNOOKER -->
+      <div class="fac-card">
+        <div class="fac-card-top top-snooker">🎱</div>
+        <div class="fac-card-body">
+          <h4>Snooker Lounge</h4>
+          <span class="rate-badge">Rs. 800 / hour</span>
+          <p>Premium full-size snooker tables in a comfortable lounge setting. Cues and chalk provided.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">Table 1</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Table 2</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Table 3</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOWLING -->
+      <div class="fac-card">
+        <div class="fac-card-top top-bowling">🎳</div>
+        <div class="fac-card-body">
+          <h4>Bowling Arena</h4>
+          <span class="rate-badge">Rs. 1,000 / hour</span>
+          <p>Modern automated bowling lanes with electronic scoring. Great for groups and families.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">Lane A</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Lane B</span>
+              <span class="unit-status status-occupied">Occupied</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Lane C</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE TENNIS -->
+      <div class="fac-card">
+        <div class="fac-card-top top-tt">🏓</div>
+        <div class="fac-card-body">
+          <h4>Table Tennis</h4>
+          <span class="rate-badge">Rs. 600 / hour</span>
+          <p>Indoor table tennis courts for casual play and competitive practice. Bats and balls provided.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">Table A</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Table B</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Table C</span>
+              <span class="unit-status status-occupied">Occupied</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GYM -->
+      <div class="fac-card">
+        <div class="fac-card-top top-gym">💪</div>
+        <div class="fac-card-body">
+          <h4>Fitness Gym</h4>
+          <span class="rate-badge">Members Only</span>
+          <p>Fully equipped gym with modern machines, free weights, and certified trainers available daily.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">Main Floor</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Cardio Zone</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Weights Room</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAMING CAFE -->
+      <div class="fac-card">
+        <div class="fac-card-top top-gaming">🎮</div>
+        <div class="fac-card-body">
+          <h4>Gaming Cafe</h4>
+          <span class="rate-badge">Rs. 500 / hour</span>
+          <p>High-performance gaming PCs and console stations. Snacks and drinks available at the counter.</p>
+          <div class="units-block">
+            <div class="units-label">Play Units</div>
+            <div class="unit-row">
+              <span class="unit-name">PC Station 1</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">PC Station 2</span>
+              <span class="unit-status status-occupied">Occupied</span>
+            </div>
+            <div class="unit-row">
+              <span class="unit-name">Console Zone</span>
+              <span class="unit-status status-available">Available</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /fac-grid -->
+
+  </div><!-- /facilities-section -->
+
+
+  <!-- READY TO PLAY -->
+  <div class="cta-section">
+    <h2>Ready to Play?</h2>
+    <p>Book a slot as a visitor or become a member for unlimited access and member benefits.</p>
+    <div class="cta-buttons">
+      {% if request.user.is_authenticated %}
+        <a href="/book-visitor" class="cta-btn cta-btn-gold">Book a Slot</a>
+        <a href="/become-member" class="cta-btn cta-btn-outline">Become a Member</a>
+      {% else %}
+        <a href="/login" class="cta-btn cta-btn-gold">Get Started</a>
+        <a href="/login#signup" class="cta-btn cta-btn-outline">Create Account</a>
+      {% endif %}
     </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="about-footer">
+    © 2026 Sports Pavilion. All rights reserved.
+  </div>
 
 </div>
-
 {% endblock body %}

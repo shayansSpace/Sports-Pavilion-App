@@ -1,278 +1,496 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sports Pavilion - Book as Visitor</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Pavilion - Book as Visitor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <style>
-      body {
-        background-color: #1a1a2e;
-        color: #ffffff;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 0;
-      }
-      .booking-container {
-        width: 100%;
-        max-width: 650px;
-        padding: 15px;
-      }
-      .booking-card {
-        background: #16213e;
-        border: 1px solid #0f3460;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        padding: 35px;
-      }
-      .form-control,
-      .form-select {
-        background-color: #1a1a2e;
-        border: 1px solid #0f3460;
-        color: #fff;
-        padding: 12px;
-      }
-      .form-control:focus,
-      .form-select:focus {
-        background-color: #1a1a2e;
-        border-color: #00fff0;
-        color: #fff;
-        box-shadow: 0 0 8px rgba(0, 255, 240, 0.2);
-      }
-      .form-label {
-        font-weight: 500;
-        color: #aaa;
-        margin-bottom: 8px;
-      }
-      .section-divider {
-        border-top: 1px solid #0f3460;
-        margin: 25px 0;
-      }
-      .section-title {
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #f0c040;
-        margin-bottom: 15px;
-        font-weight: bold;
-      }
-      .btn-submit {
-        background: linear-gradient(135deg, #0f3460 0%, #f0c040 100%);
-        border: none;
-        color: white;
-        padding: 14px;
-        font-weight: bold;
-        letter-spacing: 1px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-      }
-      .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 251, 0, 0.4);
-        color: white;
-      }
-      .btn-cancel {
-        color: #aaa;
-        text-decoration: none;
-        transition: color 0.2s;
-      }
-      .btn-cancel:hover {
-        color: #f0c040;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="booking-container">
-      {% if messages %} {% for message in messages %}
-      <div
-        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-        role="alert"
-      >
-        {{ message }}
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
+  <style>
+    body {
+      background-color: #1a1a2e;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+    }
+    .booking-container {
+      width: 100%;
+      max-width: 650px;
+      padding: 15px;
+    }
+    .booking-card {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      padding: 35px;
+    }
+    .form-control, .form-select {
+      background-color: #1a1a2e;
+      border: 1px solid #0f3460;
+      color: #fff;
+      padding: 12px;
+    }
+    .form-control:focus, .form-select:focus {
+      background-color: #1a1a2e;
+      border-color: #00fff0;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(0, 255, 240, 0.2);
+    }
+    .form-select option {
+      background-color: #1a1a2e;
+      color: #fff;
+    }
+    .form-label {
+      font-weight: 500;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+    .section-divider {
+      border-top: 1px solid #0f3460;
+      margin: 25px 0;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #f0c040;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    .btn-submit {
+      background: linear-gradient(135deg, #0f3460 0%, #f0c040 100%);
+      border: none;
+      color: white;
+      padding: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 251, 0, 0.4);
+      color: white;
+    }
+    .btn-submit:disabled {
+      opacity: 0.7;
+      transform: none;
+      cursor: not-allowed;
+    }
+    .btn-cancel {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .btn-cancel:hover { color: #f0c040; }
+
+    /* ── PDF CLIPPING WRAPPER ───────────────────────────────────────────────
+       Collapsed to 0×0 with overflow:hidden — completely invisible at all
+       times. Expanded temporarily by JS only during html2canvas capture.
+       See become_member.html for full explanation of why this approach.    */
+    #pdf-clip-wrapper {
+      position: fixed;
+      top:      0;
+      left:     0;
+      width:    0;
+      height:   0;
+      overflow: hidden;
+      z-index:  -1;
+    }
+    #pdf-report-template {
+      width:       580px;
+      padding:     45px;
+      background:  #ffffff;
+      color:       #222222;
+      font-family: Arial, sans-serif;
+    }
+    .pdf-header {
+      text-align: center;
+      border-bottom: 3px double #16213e;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+    .pdf-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #16213e;
+      letter-spacing: 1px;
+    }
+    .pdf-subtitle {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+    .pdf-badge {
+      display: inline-block;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pdf-section       { margin-bottom: 20px; }
+    .pdf-section-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #0f3460;
+      text-transform: uppercase;
+      border-bottom: 1px solid #dddddd;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .pdf-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .pdf-label { color: #555; font-weight: 500; }
+    .pdf-value { color: #000; font-weight: 600; }
+    .pdf-total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 2px solid #16213e;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .pdf-total-label { color: #16213e; }
+    .pdf-total-value { color: #1b5e20; font-size: 18px; }
+    .pdf-footer {
+      text-align: center;
+      border-top: 1px solid #eee;
+      margin-top: 40px;
+      padding-top: 15px;
+      font-size: 11px;
+      color: #777;
+    }
+    .pdf-booking-id {
+      font-size: 11px;
+      color: #aaa;
+      text-align: right;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="booking-container">
+
+    <div id="alert-container"></div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="booking-card">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold">Visitor <span style="color: #f0c040">Booking</span> Portal</h2>
+        <p class="text-muted">Secure your sports arena slot instantly as a walk-in guest.</p>
       </div>
-      {% endfor %} {% endif %}
 
-      <div class="booking-card">
-        <div class="text-center mb-4">
-          <h2 class="fw-bold">
-            Visitor <span style="color: #f0c040">Booking</span> Portal
-          </h2>
-          <p class="text-muted">
-            Secure your sports arena slot instantly as a walk-in guest.
-          </p>
+      <form id="bookingForm" method="POST" action="{% url 'book_visitor' %}">
+        {% csrf_token %}
+
+        <div class="section-title">1. Guest Identification</div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Alex" required>
+          </div>
+          <div class="col-md-6">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Smith" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="tel" class="form-control" id="phone" name="phone" placeholder="+923331112223" required>
         </div>
 
-        <form method="POST" action="{% url 'book_visitor' %}">
-          {% csrf_token %}
+        <div class="section-divider"></div>
 
-          <div class="section-title">1. Guest Identification</div>
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label for="first_name" class="form-label">First Name</label>
-              <input
-                type="text"
-                class="form-control"
-                id="first_name"
-                name="first_name"
-                placeholder="Alex"
-                required
-              />
-            </div>
-            <div class="col-md-6">
-              <label for="last_name" class="form-label">Last Name</label>
-              <input
-                type="text"
-                class="form-control"
-                id="last_name"
-                name="last_name"
-                placeholder="Smith"
-                required
-              />
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="phone" class="form-label">Phone Number</label>
-            <input
-              type="tel"
-              class="form-control"
-              id="phone"
-              name="phone"
-              placeholder="+923331112223"
-              required
-            />
-          </div>
-
-          <div class="section-divider"></div>
-
-          <div class="section-title">2. Arena & Slot Reservation</div>
-          <div class="mb-3">
-            <label for="play_unit" class="form-label"
-              >Select Available Play Unit</label
-            >
-            <select
-              class="form-select"
-              id="play_unit"
-              name="play_unit"
-              required
-            >
-              <option value="" disabled selected>
-                Choose a court / ground / table...
-              </option>
-              {% for unit in play_units %}
+        <div class="section-title">2. Arena & Slot Reservation</div>
+        <div class="mb-3">
+          <label for="play_unit" class="form-label">Select Available Play Unit</label>
+          <select class="form-select" id="play_unit" name="play_unit" required>
+            <option value="" disabled selected>Choose a court / ground / table...</option>
+            {% for unit in play_units %}
               <option value="{{ unit.unit_id }}">
-                {{ unit.facility.facility_name }}{{ unit.unit_num }}
-                (${{ unit.facility.sp_hourly_rate }}/hr)
+                {{ unit.facility.facility_name }} — Unit {{ unit.unit_num }} (${{ unit.facility.sp_hourly_rate }}/hr)
               </option>
-              {% endfor %}
-            </select>
-          </div>
+            {% endfor %}
+          </select>
+        </div>
 
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <label for="date" class="form-label">Target Date</label>
-              <input
-                type="date"
-                class="form-control"
-                id="date"
-                name="date"
-                required
-              />
-            </div>
-            <div class="col-md-4">
-              <label for="start_time" class="form-label">Start Time</label>
-              <input
-                type="time"
-                class="form-control"
-                id="start_time"
-                name="start_time"
-                required
-              />
-            </div>
-            <div class="col-md-4">
-              <label for="end_time" class="form-label">End Time</label>
-              <input
-                type="time"
-                class="form-control"
-                id="end_time"
-                name="end_time"
-                required
-              />
-            </div>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="date" class="form-label">Target Date</label>
+            <input type="date" class="form-control" id="date" name="date" required>
           </div>
-
-          <div class="section-divider"></div>
-
-          <div class="section-title">3. Settlement</div>
-          <div class="mb-4">
-            <label for="payment_method" class="form-label">Payment Mode</label>
-            <select
-              class="form-select"
-              id="payment_method"
-              name="payment_method"
-              required
-            >
-              <option value="Cash" selected>Cash Payment</option>
-              <option value="Credit Card">Card Terminal</option>
-            </select>
+          <div class="col-md-4">
+            <label for="start_time" class="form-label">Start Time</label>
+            <input type="time" class="form-control" id="start_time" name="start_time" required>
           </div>
-
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-submit text-uppercase">
-              Confirm & Process Booking 🚀
-            </button>
+          <div class="col-md-4">
+            <label for="end_time" class="form-label">End Time</label>
+            <input type="time" class="form-control" id="end_time" name="end_time" required>
           </div>
+        </div>
 
-          <div class="text-center mt-3">
-            <a href="/" class="btn-cancel small">Cancel process</a>
-          </div>
-        </form>
-      </div>
+        <div class="section-divider"></div>
+
+        <div class="section-title">3. Settlement</div>
+        <div class="mb-4">
+          <label for="payment_method" class="form-label">Payment Mode</label>
+          <select class="form-select" id="payment_method" name="payment_method" required>
+            <option value="Cash" selected>Cash Payment</option>
+            <option value="Credit Card">Card Terminal</option>
+          </select>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-submit text-uppercase" id="submitBtn">
+            Confirm & Process Booking 🚀
+          </button>
+        </div>
+
+        <div class="text-center mt-3">
+          <a href="/" class="btn-cancel small">Cancel process</a>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <div class="modal fade" id="receiptModal" tabindex="-1" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);" role="dialog">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-white" style="background-color: #1e1e1e; border: 1px solid #3a3a3a; border-radius: 12px;">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold text-success">🎉 Registration Complete!</h5>
-            <button type="button" class="btn-close btn-close-white" onclick="closeReceiptModal()"></button>
-          </div>
-          <div class="modal-body text-center py-4">
-            <p class="fs-5 mb-1" id="modalMessage">Your registration is completely done!</p>
-            <p class="text-muted small">The system has successfully generated your HTML-to-PDF receipt download stream...</p>
-            <a id="fallbackDownloadLink" href="#" class="btn btn-sm btn-outline-secondary mt-2 text-decoration-none">
-              📥 Click here if your browser blocked the automatic download
-            </a>
-          </div>
-          <div class="modal-footer border-0 pt-0 justify-content-center">
-            <button type="button" class="btn px-4 fw-bold" style="background-color: #dc3545; color: white;" onclick="closeReceiptModal()">
-              Perfect, Got it!
-            </button>
-          </div>
+
+  <!-- ─── SUCCESS MODAL ────────────────────────────────────────────────────── -->
+  <div class="modal fade" id="receiptModal" tabindex="-1"
+       style="background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-white"
+           style="background-color: #1e1e1e; border: 1px solid #3a3a3a; border-radius: 12px;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-success">🎉 Booking Confirmed!</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <p class="fs-5 mb-1" id="modalMessage">Your registration is completely done!</p>
+          <p class="text-muted small">Your PDF receipt has been downloaded to your device.</p>
+        </div>
+        <div class="modal-footer border-0 pt-0 justify-content-center">
+          <button type="button" class="btn px-4 fw-bold"
+                  style="background-color: #dc3545; color: white;"
+                  data-bs-dismiss="modal">
+            Perfect, Got it!
+          </button>
         </div>
       </div>
     </div>
+  </div>
+  <!-- ─── END MODAL ────────────────────────────────────────────────────────── -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const dateInput = document.getElementById("date");
-        const today = new Date().toISOString().split("T")[0];
-        dateInput.min = today;
-      });
-    </script>
-  </body>
+  <!-- ─── PDF TEMPLATE (zero-size clipped — completely invisible) ───────────── -->
+  <div id="pdf-clip-wrapper">
+    <div id="pdf-report-template">
+
+      <div class="pdf-header">
+        <div class="pdf-title">SPORTS PAVILION</div>
+        <div class="pdf-subtitle">Visitor Booking Receipt</div>
+        <div class="pdf-badge">✓ Confirmed</div>
+      </div>
+
+      <div class="pdf-booking-id">Booking Ref: <span id="pdf_booking_id"></span></div>
+
+      <div class="pdf-section">
+        <div class="pdf-section-title">Guest Information</div>
+        <div class="pdf-row">
+          <span class="pdf-label">Full Name:</span>
+          <span class="pdf-value" id="pdf_name"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Contact Number:</span>
+          <span class="pdf-value" id="pdf_phone"></span>
+        </div>
+      </div>
+
+      <div class="pdf-section">
+        <div class="pdf-section-title">Booking Details</div>
+        <div class="pdf-row">
+          <span class="pdf-label">Play Unit:</span>
+          <span class="pdf-value" id="pdf_unit"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Date:</span>
+          <span class="pdf-value" id="pdf_date"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Time Slot:</span>
+          <span class="pdf-value" id="pdf_slot"></span>
+        </div>
+      </div>
+
+      <div class="pdf-section">
+        <div class="pdf-section-title">Payment Summary</div>
+        <div class="pdf-row">
+          <span class="pdf-label">Payment Method:</span>
+          <span class="pdf-value" id="pdf_payment"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Generated On:</span>
+          <span class="pdf-value" id="pdf_generated"></span>
+        </div>
+        <div class="pdf-total-row">
+          <span class="pdf-total-label">Total Charged:</span>
+          <span class="pdf-total-value" id="pdf_total"></span>
+        </div>
+      </div>
+
+      <div class="pdf-footer">
+        <p>Please present this receipt at the reception desk before accessing the facility.</p>
+        <p>Thank you for visiting Sports Pavilion.</p>
+      </div>
+
+    </div>
+  </div>
+  <!-- ─── END PDF TEMPLATE ─────────────────────────────────────────────────── -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ── Set date minimum to today on page load ──────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('date').min = new Date().toISOString().split('T')[0];
+    });
+
+
+    document.getElementById('bookingForm').addEventListener('submit', async function (event) {
+
+      // ── Step 1: Intercept — switch to fetch() instead of a page reload ─────────
+      event.preventDefault();
+
+      const submitBtn       = document.getElementById('submitBtn');
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Processing Booking...';
+
+      // ── Step 2: Snapshot form values before any async work ────────────────────
+      const fName      = document.getElementById('first_name').value.trim();
+      const lName      = document.getElementById('last_name').value.trim();
+      const phone      = document.getElementById('phone').value.trim();
+      const date       = document.getElementById('date').value;
+      const startTime  = document.getElementById('start_time').value;
+      const endTime    = document.getElementById('end_time').value;
+      const payMethod  = document.getElementById('payment_method').value;
+
+      const unitSelect  = document.getElementById('play_unit');
+      const selectedUnit = unitSelect.options[unitSelect.selectedIndex].text;
+
+      // ── Step 3: POST the form data to book_visitor() via fetch ─────────────────
+      // Django returns JsonResponse — the price is calculated server-side and
+      // returned in the response, so we never duplicate the rate × hours logic here.
+      let data;
+      try {
+        const formData = new FormData(document.getElementById('bookingForm'));
+        const response = await fetch("{% url 'book_visitor' %}", {
+          method: 'POST',
+          body:   formData,
+        });
+        data = await response.json();
+      } catch (networkErr) {
+        showAlert('danger', 'Network error — please check your connection and try again.');
+        resetBtn(submitBtn);
+        return;
+      }
+
+      // ── Step 4: Handle conflict / server-side errors ───────────────────────────
+      if (!data.success) {
+        showAlert('danger', data.error || 'Booking failed. Please try again.');
+        resetBtn(submitBtn);
+        return;
+      }
+
+      // ── Step 5: Booking confirmed — fill the PDF template with real data ───────
+      // total_price comes from Django (_calculate_price), booking_id from the DB row.
+      document.getElementById('pdf_booking_id').innerText = '#' + data.booking_id;
+      document.getElementById('pdf_name').innerText       = fName + ' ' + lName;
+      document.getElementById('pdf_phone').innerText      = phone;
+      document.getElementById('pdf_unit').innerText       = selectedUnit;
+      document.getElementById('pdf_date').innerText       = date;
+      document.getElementById('pdf_slot').innerText       = startTime + ' → ' + endTime;
+      document.getElementById('pdf_payment').innerText    = payMethod;
+      document.getElementById('pdf_generated').innerText  = new Date().toLocaleString();
+      document.getElementById('pdf_total').innerText      = '$' + data.total_price;
+
+      // ── Step 6: Expand the clipping wrapper so html2canvas can capture it ──────
+      const pdfWrapper = document.getElementById('pdf-clip-wrapper');
+      const pdfElement = document.getElementById('pdf-report-template');
+      const pdfOptions = {
+        margin:      0.5,
+        filename:    `Pavilion_Booking_${fName}_${lName}.pdf`,
+        image:       { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, logging: false, useCORS: true, scrollX: 0, scrollY: 0 },
+        jsPDF:       { unit: 'in', format: 'letter', orientation: 'portrait' },
+      };
+
+      pdfWrapper.style.width  = 'auto';
+      pdfWrapper.style.height = 'auto';
+      pdfWrapper.style.zIndex = '9999';
+
+      // ── Step 7: Render PDF, collapse wrapper, show success modal ──────────────
+      const collapse = () => {
+        pdfWrapper.style.width  = '0';
+        pdfWrapper.style.height = '0';
+        pdfWrapper.style.zIndex = '-1';
+      };
+
+      try {
+        await html2pdf().from(pdfElement).set(pdfOptions).save();
+      } catch (pdfErr) {
+        console.error('PDF generation failed:', pdfErr);
+        // Booking already saved in DB — don't block the user, just skip the PDF
+      } finally {
+        collapse();
+        document.getElementById('modalMessage').innerText = data.message;
+        new bootstrap.Modal(document.getElementById('receiptModal')).show();
+      }
+    });
+
+
+    // ── Helpers ──────────────────────────────────────────────────────────────────
+
+    function resetBtn(btn) {
+      btn.disabled    = false;
+      btn.textContent = 'Confirm & Process Booking 🚀';
+    }
+
+    function showAlert(type, message) {
+      const container = document.getElementById('alert-container');
+      container.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>`;
+    }
+  </script>
+
+</body>
 </html>

@@ -205,9 +205,10 @@ def book_visitor(request):
         BookingPayment.objects.create(payment=payment, booking=booking)
 
         return JsonResponse({
-            'success'   : True,
-            'booking_id': booking.booking_id,
-            'message'   : "Your registration is completely done!",
+            'success'    : True,
+            'booking_id' : booking.booking_id,
+            'total_price': str(total_price),   # ← JS uses this to fill the PDF receipt
+            'message'    : "Your registration is completely done!",
         })
 
     play_units = (
@@ -398,9 +399,9 @@ def staff_list(request):
 
     if query:
         staff_members = staff_members.filter(
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(role__icontains=query)  # Adjust based on your model columns
+            Q(staff_first_name__icontains=query) |
+            Q(staff_last_name__icontains=query)  |
+            Q(staff_role__icontains=query)
         )
 
     context = {

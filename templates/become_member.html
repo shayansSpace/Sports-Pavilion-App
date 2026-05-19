@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sports Pavilion - Become a Member</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     body {
       background-color: #1a1a2e;
@@ -42,6 +42,10 @@
       color: #fff;
       box-shadow: 0 0 8px rgba(0, 255, 240, 0.2);
     }
+    .form-select option {
+      background-color: #1a1a2e;
+      color: #fff;
+    }
     .form-label {
       font-weight: 500;
       color: #aaa;
@@ -62,29 +66,45 @@
       box-shadow: 0 5px 15px rgba(246, 250, 0, 0.4);
       color: white;
     }
+    .btn-upgrade:disabled {
+      opacity: 0.7;
+      transform: none;
+      cursor: not-allowed;
+    }
     .btn-cancel {
       color: #aaa;
       text-decoration: none;
       transition: color 0.2s;
     }
-    .btn-cancel:hover {
-      color: #f0c040;
-    }
-    .brand-accent {
-      color: #f0c040;
+    .btn-cancel:hover { color: #f0c040; }
+    .brand-accent     { color: #f0c040; }
+
+    /* ── PDF CLIPPING WRAPPER ────────────────────────────────────────────────
+       Collapses the PDF template to a true 0x0 pixel box via overflow:hidden.
+       The template stays inside the viewport (position:fixed top-left) so
+       html2canvas CAN capture it when the wrapper is expanded — but it is
+       invisible to the user at all other times because width/height are 0.
+
+       Previous bug: z-index:-1 kept it behind the card, but it still bled
+       through on the sides where the dark card didn't cover the screen.
+       This approach clips it to zero pixels instead — no bleed-through ever. */
+    #pdf-clip-wrapper {
+      position: fixed;
+      top:      0;
+      left:     0;
+      width:    0;
+      height:   0;
+      overflow: hidden;
+      z-index:  -1;
     }
 
-    /* NEW CHANGE: Styles for the printable PDF template. 
-       Positioned completely off-screen so it won't impact your dark dashboard UI */
+    /* The PDF page itself — wrapper handles all positioning */
     #pdf-report-template {
-      width: 550px;
-      padding: 40px;
-      background: #ffffff;
-      color: #222222;
-      font-family: 'Arial', sans-serif;
-      position: absolute;
-      left: -9999px;
-      top: -9999px;
+      width:       550px;
+      padding:     40px;
+      background:  #ffffff;
+      color:       #222222;
+      font-family: Arial, sans-serif;
     }
     .pdf-header {
       text-align: center;
@@ -98,9 +118,13 @@
       color: #16213e;
       letter-spacing: 1px;
     }
-    .pdf-section {
-      margin-bottom: 20px;
+    .pdf-subtitle {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      margin-top: 5px;
     }
+    .pdf-section       { margin-bottom: 20px; }
     .pdf-section-title {
       font-size: 14px;
       font-weight: bold;
@@ -116,27 +140,22 @@
       margin-bottom: 8px;
       font-size: 14px;
     }
-    .pdf-label {
-      color: #555555;
-      font-weight: 500;
-    }
-    .pdf-value {
-      color: #000000;
-      font-weight: 600;
-    }
+    .pdf-label { color: #555; font-weight: 500; }
+    .pdf-value { color: #000; font-weight: 600; }
     .pdf-footer {
       text-align: center;
-      border-top: 1px solid #eeeeee;
+      border-top: 1px solid #eee;
       margin-top: 40px;
       padding-top: 15px;
       font-size: 11px;
-      color: #777777;
+      color: #777;
     }
   </style>
 </head>
 <body>
 
   <div class="membership-container">
+
     {% if messages %}
       {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -154,7 +173,7 @@
 
       <form method="POST" action="{% url 'become_member' %}" id="membershipForm">
         {% csrf_token %}
-        
+
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="first_name" class="form-label">First Name</label>
@@ -174,7 +193,7 @@
         <div class="mb-3">
           <label for="plan" class="form-label">Select Membership Plan</label>
           <select class="form-select" id="plan" name="plan" required>
-            <option value="" disabled selected>Choose a subscription layout...</option>
+            <option value="" disabled selected>Choose a subscription plan...</option>
             {% for plan in plans %}
               <option value="{{ plan.plan_id }}">
                 {{ plan.plan_name }} — {{ plan.plan_price }} ({{ plan.duration_months }} Months)
@@ -193,9 +212,11 @@
         </div>
 
         <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-upgrade text-uppercase">Activate Membership 🏅</button>
+          <button type="submit" class="btn btn-upgrade text-uppercase" id="submitBtn">
+            Activate Membership 🏅
+          </button>
         </div>
-        
+
         <div class="text-center mt-3">
           <a href="/" class="btn-cancel small">Nevermind, take me back</a>
         </div>
@@ -203,74 +224,121 @@
     </div>
   </div>
 
-  <div id="pdf-report-template">
-    <div class="pdf-header">
-      <div class="pdf-title">SPORTS PAVILION</div>
-      <div style="font-size: 12px; color: #666; text-transform: uppercase; margin-top: 5px;">Membership Activation Summary</div>
-    </div>
-    
-    <div class="pdf-section">
-      <div class="pdf-section-title">Personal Information</div>
-      <div class="pdf-row"><span class="pdf-label">Full Name:</span><span class="pdf-value" id="pdf_name"></span></div>
-      <div class="pdf-row"><span class="pdf-label">Contact Number:</span><span class="pdf-value" id="pdf_phone"></span></div>
-    </div>
 
-    <div class="pdf-section">
-      <div class="pdf-section-title">Subscription Structure</div>
-      <div class="pdf-row"><span class="pdf-label">Membership Tier Details:</span><span class="pdf-value" id="pdf_plan"></span></div>
-      <div class="pdf-row"><span class="pdf-label">Payment Intention Method:</span><span class="pdf-value" id="pdf_payment"></span></div>
-      <div class="pdf-row"><span class="pdf-label">Generated Timestamp:</span><span class="pdf-value" id="pdf_date"></span></div>
-    </div>
+  <!-- ─── PDF TEMPLATE (zero-size clipped — completely invisible) ───────────── -->
+  <div id="pdf-clip-wrapper">
+    <div id="pdf-report-template">
 
-    <div class="pdf-footer">
-      <p>Thank you for enrolling at Sports Pavilion. Please present this document at the reception desk.</p>
+      <div class="pdf-header">
+        <div class="pdf-title">SPORTS PAVILION</div>
+        <div class="pdf-subtitle">Membership Activation Receipt</div>
+      </div>
+
+      <div class="pdf-section">
+        <div class="pdf-section-title">Personal Information</div>
+        <div class="pdf-row">
+          <span class="pdf-label">Full Name:</span>
+          <span class="pdf-value" id="pdf_name"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Contact Number:</span>
+          <span class="pdf-value" id="pdf_phone"></span>
+        </div>
+      </div>
+
+      <div class="pdf-section">
+        <div class="pdf-section-title">Subscription Details</div>
+        <div class="pdf-row">
+          <span class="pdf-label">Membership Plan:</span>
+          <span class="pdf-value" id="pdf_plan"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Payment Method:</span>
+          <span class="pdf-value" id="pdf_payment"></span>
+        </div>
+        <div class="pdf-row">
+          <span class="pdf-label">Generated On:</span>
+          <span class="pdf-value" id="pdf_date"></span>
+        </div>
+      </div>
+
+      <div class="pdf-footer">
+        <p>Thank you for enrolling at Sports Pavilion. Please present this document at the reception desk.</p>
+      </div>
+
     </div>
   </div>
+  <!-- ─── END PDF TEMPLATE ─────────────────────────────────────────────────── -->
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    document.getElementById('membershipForm').addEventListener('submit', function(event) {
-      // 1. Pause form submission so the browser doesn't change pages before the PDF is created
+    document.getElementById('membershipForm').addEventListener('submit', function (event) {
+
+      // ── Step 1: Intercept — hold the POST until the PDF is saved ──────────────
       event.preventDefault();
 
-      // 2. Gather values from the input inputs
-      const fName = document.getElementById('first_name').value;
-      const lName = document.getElementById('last_name').value;
-      const phoneNum = document.getElementById('phone').value;
+      const submitBtn       = document.getElementById('submitBtn');
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Generating Receipt...';
+
+      // ── Step 2: Read values from the live form fields ──────────────────────────
+      const fName     = document.getElementById('first_name').value.trim();
+      const lName     = document.getElementById('last_name').value.trim();
+      const phone     = document.getElementById('phone').value.trim();
       const payMethod = document.getElementById('payment_method').value;
-      
-      // Get the readable string text option inside the drop down instead of just the plan ID number value
-      const planDropdown = document.getElementById('plan');
-      const selectedPlanText = planDropdown.options[planDropdown.selectedIndex].text;
 
-      // 3. Insert form text data directly into the blank PDF template layout targets
-      document.getElementById('pdf_name').innerText = fName + " " + lName;
-      document.getElementById('pdf_phone').innerText = phoneNum;
-      document.getElementById('pdf_plan').innerText = selectedPlanText;
+      const planSelect   = document.getElementById('plan');
+      const selectedPlan = planSelect.options[planSelect.selectedIndex].text;
+
+      // ── Step 3: Inject data into the clipped PDF template ─────────────────────
+      document.getElementById('pdf_name').innerText    = fName + ' ' + lName;
+      document.getElementById('pdf_phone').innerText   = phone;
+      document.getElementById('pdf_plan').innerText    = selectedPlan;
       document.getElementById('pdf_payment').innerText = payMethod;
-      document.getElementById('pdf_date').innerText = new Date().toLocaleString();
+      document.getElementById('pdf_date').innerText    = new Date().toLocaleString();
 
-      // 4. Configure PDF layout scale settings
-      const elementToPrint = document.getElementById('pdf-report-template');
-      const printOptions = {
-        margin:       0.5,
-        filename:     'Pavilion_Membership_' + fName + '_' + lName + '.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, logging: false },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      // ── Step 4: PDF configuration ──────────────────────────────────────────────
+      const pdfElement = document.getElementById('pdf-report-template');
+      const pdfWrapper = document.getElementById('pdf-clip-wrapper');
+      const pdfOptions = {
+        margin:      0.5,
+        filename:    `Pavilion_Membership_${fName}_${lName}.pdf`,
+        image:       { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, logging: false, useCORS: true, scrollX: 0, scrollY: 0 },
+        jsPDF:       { unit: 'in', format: 'letter', orientation: 'portrait' },
       };
 
-      // 5. Fire PDF rendering engine, and when it successfully finishes saving, fire the form submission up to views.py
-      html2pdf().from(elementToPrint).set(printOptions).save().then(() => {
-        // Resume traditional form POST handling towards your views.py, firing the clean page-redirect structure!
-        document.getElementById('membershipForm').submit();
-      }).catch((err) => {
-        console.error("PDF engine failure:", err);
-        // Fallback safety feature: Submit the form normally if the PDF generator encounters an unexpected issue
-        document.getElementById('membershipForm').submit();
-      });
+      // ── Step 5: Expand wrapper so html2canvas can capture the template ─────────
+      // 0x0 → auto: the template is now inside the viewport and renderable.
+      // z-index:9999 ensures no other stacking context obscures it during capture.
+      pdfWrapper.style.width  = 'auto';
+      pdfWrapper.style.height = 'auto';
+      pdfWrapper.style.zIndex = '9999';
+
+      // ── Step 6: Render, save, collapse wrapper, POST to Django ────────────────
+      const collapse = () => {
+        pdfWrapper.style.width  = '0';
+        pdfWrapper.style.height = '0';
+        pdfWrapper.style.zIndex = '-1';
+      };
+
+      html2pdf()
+        .from(pdfElement)
+        .set(pdfOptions)
+        .save()
+        .then(() => {
+          collapse();
+          document.getElementById('membershipForm').submit();
+        })
+        .catch((err) => {
+          console.error('PDF generation failed:', err);
+          collapse();
+          document.getElementById('membershipForm').submit();  // fallback: submit anyway
+        });
     });
   </script>
+
 </body>
 </html>
