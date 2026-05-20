@@ -235,7 +235,7 @@
             <option value="" disabled selected>Choose a court / ground / table...</option>
             {% for unit in play_units %}
               <option value="{{ unit.unit_id }}">
-                {{ unit.facility.facility_name }} — Unit {{ unit.unit_num }} (${{ unit.facility.sp_hourly_rate }}/hr)
+                {{ unit.facility.facility_name }} — {{ unit.unit_num }} ({{ unit.facility.sp_hourly_rate }}/hr)
               </option>
             {% endfor %}
           </select>
@@ -438,7 +438,7 @@
       document.getElementById('pdf_slot').innerText       = startTime + ' → ' + endTime;
       document.getElementById('pdf_payment').innerText    = payMethod;
       document.getElementById('pdf_generated').innerText  = new Date().toLocaleString();
-      document.getElementById('pdf_total').innerText      = '$' + data.total_price;
+      document.getElementById('pdf_total').innerText      = data.total_price;
 
       // ── Step 6: Expand the clipping wrapper so html2canvas can capture it ──────
       const pdfWrapper = document.getElementById('pdf-clip-wrapper');
@@ -479,7 +479,7 @@
 
     function resetBtn(btn) {
       btn.disabled    = false;
-      btn.textContent = 'Confirm & Process Booking 🚀';
+      btn.textContent = 'Confirm Booking ';
     }
 
     function showAlert(type, message) {

@@ -116,7 +116,7 @@
     <form method="GET" action="{% url 'staff_list' %}" class="mb-4">
       <div class="input-group">
         <input type="text" name="q" placeholder="Search staff members by name or role..." class="form-control search-input" value="{{ query }}" />
-        <button class="btn btn-outline-secondary border-secondary px-4 text-white" type="submit">Filter Matrix</button>
+        <button class="btn btn-outline-secondary border-secondary px-4 text-white" type="submit">Search</button>
         {% if query %}
           <a href="{% url 'staff_list' %}" class="btn btn-outline-danger d-flex align-items-center">Clear</a>
         {% endif %}
@@ -144,7 +144,7 @@
                 {{ s.staff_role|default:"General Staff" }}
               </span>
             </td>
-            <td class="text-warning fw-semibold">${{ s.staff_salary }}</td>
+            <td class="text-warning fw-semibold">{{ s.staff_salary }}</td>
             <td class="text-center">
               <a href="{% url 'staff_update' s.staff_id %}" class="btn btn-sm btn-neon-cyan px-3 me-1">Edit</a>
               <form action="{% url 'staff_delete' s.staff_id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you completely sure you want to purge this staff member record?');">

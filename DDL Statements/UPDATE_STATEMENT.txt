@@ -1,0 +1,4 @@
+UPDATE playunit
+SET unit_Status = 'Active' -- Replace 'Active' with your desired new status value
+WHERE facility_id = 101     -- Replace 101 with your specific target facility ID
+  AND unit_num = 5;         -- Replace 5 with your specific target unit number

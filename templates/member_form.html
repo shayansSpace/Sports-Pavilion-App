@@ -83,7 +83,7 @@
           <option value="" disabled {% if not member %}selected{% endif %}>Select membership pricing profile...</option>
           {% for plan in plans %}
             <option value="{{ plan.plan_id }}" {% if member.plan.plan_id == plan.plan_id %}selected{% endif %}>
-              {{ plan.plan_name }} — ${{ plan.plan_price }} ({{ plan.duration_months }} Mo)
+              {{ plan.plan_name }} — {{ plan.plan_price }} ({{ plan.duration_months }} Mo)
             </option>
           {% endfor %}
         </select>

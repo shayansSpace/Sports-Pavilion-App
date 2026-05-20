@@ -102,7 +102,7 @@ def loginUser(request):
 
 def logoutUser(request):
     logout(request)
-    return redirect('/login')
+    return redirect('home')
 
 
 def about(request):
@@ -148,10 +148,6 @@ def become_member(request):
             plan    = plan,
         )
  
-        # 4. Flash message + redirect
-        #    NOTE: The PDF is generated CLIENT-SIDE by html2pdf.js in the template
-        #    BEFORE this POST ever fires. By the time Django sees this request,
-        #    the file is already saved to the user's device.
         messages.success(request, f"Welcome, {new_member.mem_first_name}! Your membership is now active.")
         return redirect('home')
  

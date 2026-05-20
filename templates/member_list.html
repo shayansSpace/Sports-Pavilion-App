@@ -118,7 +118,7 @@
     <form method="GET" action="{% url 'member_list' %}" class="mb-4">
       <div class="input-group">
         <input type="text" name="q" placeholder="Search by System ID, Name, or Email..." class="form-control search-input" value="{{ query }}" />
-        <button class="btn btn-outline-secondary border-secondary px-4 text-white" type="submit">Filter Matrix</button>
+        <button class="btn btn-outline-secondary border-secondary px-4 text-white" type="submit">Search</button>
         {% if query %}
           <a href="{% url 'member_list' %}" class="btn btn-outline-danger d-flex align-items-center">Clear</a>
         {% endif %}
@@ -140,7 +140,7 @@
     </thead>
     <tbody>
       {% for m in members %}
-      <tr style="background-color: #2b2e31; color: #ececec;">
+      <tr style="background-color: #16213e; color: #e8e8e8;">
         <th scope="row">{{ m.formatted_id }}</th>
         <td class="fw-bold">{{ m.full_name }}</td>
         <td>{{ m.mem_email }}</td>
