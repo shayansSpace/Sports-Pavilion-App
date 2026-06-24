@@ -5,22 +5,26 @@
 
 {% block head %}
 <style>
+  .highlight-row {
+  color: white;
+  background-color: #85ec0f;
+}
   .dashboard-wrapper {
     background-color: #16213e;
-    border: 1px solid #0f3460;
+    border: 1px solid #85ec0f;
     border-radius: 12px;
     padding: 30px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
   .search-input {
-    background-color: #1a1a2e;
+    background-color: #ffffff;
     border: 1px solid #0f3460;
-    color: #fff !important;
+    color: #000000 !important;
     padding: 12px 20px;
   }
   .search-input:focus {
-    background-color: #1a1a2e;
-    border-color: #00fff0;
+    background-color: #ffffff;
+    border-color: #000000;
     box-shadow: 0 0 8px rgba(0, 255, 240, 0.2);
   }
   .custom-table {
@@ -32,12 +36,13 @@
     border-bottom: 1px solid #0f3460;
   }
   .custom-table th {
-    background-color: #1a1a2e !important;
+    background-color: #191944 !important;
     color: #f0c040 !important;
     font-weight: 600;
   }
   .custom-table td {
-    color: #e0e0e0;
+    color: #ffff;
+    background-color: #16213e;
   }
   .btn-neon-cyan {
     background-color: transparent;
@@ -140,7 +145,7 @@
     </thead>
     <tbody>
       {% for m in members %}
-      <tr style="background-color: #16213e; color: #e8e8e8;">
+      <tr class="highlight-row">
         <th scope="row">{{ m.formatted_id }}</th>
         <td class="fw-bold">{{ m.full_name }}</td>
         <td>{{ m.mem_email }}</td>

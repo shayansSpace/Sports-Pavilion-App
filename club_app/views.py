@@ -224,8 +224,8 @@ def book_visitor(request):
 def book_member(request):
     current_member = Member.objects.filter(mem_email=request.user.email).first()
     if not current_member:
-        return JsonResponse({'success': False, 'error': "Access Denied. You must subscribe to a plan first!"})
-
+        messages.error(request, "Access Denied. You must subscribe to a plan first!")
+        return redirect('home')
     if request.method == 'POST':
         play_unit_id = request.POST.get('play_unit')
         target_date  = request.POST.get('date')
@@ -240,7 +240,8 @@ def book_member(request):
             bk_start_time__lt = end_time,
             bk_end_time__gt   = start_time,
         ).exists():
-            return JsonResponse({'success': False, 'error': "Slot already booked."})
+            messages.error(request, "Slot already booked.")
+            return redirect('book_member')
 
         booking = Booking.objects.create(
             play_unit     = play_unit,
@@ -250,11 +251,8 @@ def book_member(request):
         )
         MemberBooking.objects.create(booking=booking, member=current_member)
 
-        return JsonResponse({
-            'success'   : True,
-            'booking_id': booking.booking_id,
-            'message'   : "Member booking reservation successful!",
-        })
+        messages.success(request, "Member booking reservation successful!")
+        return redirect('home')
 
     play_units = (
         PlayUnit.objects
@@ -377,7 +375,7 @@ def delete_member(request, member_id):
         member = get_object_or_404(Member, pk=member_id)
         name   = member.full_name
         member.delete()
-        messages.success(request, f"Record for {name} completely purged from database.")
+        messages.success(request, f"Record for {name} completely deleted from database.")
     return redirect('member_list')
 
 # ─────────────────────────────────────────────────────────────────────────────
