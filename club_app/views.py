@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.db import transaction
 from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -124,29 +125,30 @@ def become_member(request):
         plan_id = request.POST.get('plan')
         phone   = request.POST.get('phone')
         plan    = get_object_or_404(MembershipPlan, pk=plan_id)
- 
-        # 1. Create Member row
-        new_member = Member.objects.create(
-            plan_id        = plan_id,
-            mem_first_name = request.POST.get('first_name'),
-            mem_last_name  = request.POST.get('last_name'),
-            mem_email      = request.user.email,
-            mem_join_date  = date.today(),
-        )
- 
-        # 2. Link phone number
-        MemberPhone.objects.create(member=new_member, phone_number=phone)
- 
-        # 3. Payment record
-        payment = Payment.objects.create(
-            amount         = plan.plan_price,
-            payment_method = request.POST.get('payment_method', 'Cash'),
-        )
-        MembershipPayment.objects.create(
-            payment = payment,
-            member  = new_member,
-            plan    = plan,
-        )
+
+        with transaction.atomic():
+            # 1. Create Member row
+            new_member = Member.objects.create(
+                plan_id        = plan_id,
+                mem_first_name = request.POST.get('first_name'),
+                mem_last_name  = request.POST.get('last_name'),
+                mem_email      = request.user.email, 
+                mem_join_date  = date.today(),
+            )
+    
+            # 2. Link phone number
+            MemberPhone.objects.create(member=new_member, phone_number=phone)
+    
+            # 3. Payment record
+            payment = Payment.objects.create(
+                amount = plan.plan_price,
+                payment_method = request.POST.get('payment_method', 'Cash'),
+            )
+            MembershipPayment.objects.create(
+                payment = payment,
+                member  = new_member,
+                plan    = plan,
+            )
  
         messages.success(request, f"Welcome, {new_member.mem_first_name}! Your membership is now active.")
         return redirect('home')
@@ -178,27 +180,28 @@ def book_visitor(request):
         if conflict:
             return JsonResponse({'success': False, 'error': "This time slot is already occupied!"})
 
-        visitor = Visitor.objects.create(
-            vis_first_name = request.POST.get('first_name'),
-            vis_last_name  = request.POST.get('last_name'),
-        )
-        VisitorPhone.objects.create(visitor=visitor, phone_number=request.POST.get('phone'))
+        with transaction.atomic():
+            visitor = Visitor.objects.create(
+                vis_first_name = request.POST.get('first_name'),
+                vis_last_name  = request.POST.get('last_name'),
+            )
+            VisitorPhone.objects.create(visitor=visitor, phone_number=request.POST.get('phone'))
 
-        booking = Booking.objects.create(
-            play_unit     = play_unit,
-            booking_date  = target_date,
-            bk_start_time = start_time,
-            bk_end_time   = end_time,
-        )
-        VisitorBooking.objects.create(booking=booking, visitor=visitor)
+            booking = Booking.objects.create(
+                play_unit     = play_unit,
+                booking_date  = target_date,
+                bk_start_time = start_time,
+                bk_end_time   = end_time,
+            )
+            VisitorBooking.objects.create(booking=booking, visitor=visitor)
 
-        total_price = _calculate_price(play_unit, start_time, end_time)
+            total_price = _calculate_price(play_unit, start_time, end_time)
 
-        payment = Payment.objects.create(
-            amount         = total_price,
-            payment_method = request.POST.get('payment_method', 'Cash'),
-        )
-        BookingPayment.objects.create(payment=payment, booking=booking)
+            payment = Payment.objects.create(
+                amount         = total_price,
+                payment_method = request.POST.get('payment_method', 'Cash'),
+            )
+            BookingPayment.objects.create(payment=payment, booking=booking)
 
         return JsonResponse({
             'success'    : True,
@@ -243,13 +246,14 @@ def book_member(request):
             messages.error(request, "Slot already booked.")
             return redirect('book_member')
 
-        booking = Booking.objects.create(
-            play_unit     = play_unit,
-            booking_date  = target_date,
-            bk_start_time = start_time,
-            bk_end_time   = end_time,
-        )
-        MemberBooking.objects.create(booking=booking, member=current_member)
+        with transaction.atomic():
+            booking = Booking.objects.create(
+                play_unit     = play_unit,
+                booking_date  = target_date,
+                bk_start_time = start_time,
+                bk_end_time   = end_time,
+            )
+            MemberBooking.objects.create(booking=booking, member=current_member)
 
         messages.success(request, "Member booking reservation successful!")
         return redirect('home')

@@ -517,6 +517,7 @@
         What would you like to do today?
       </p>
       <hr style="border-color: #0f3460" />
+      {% if not is_member %}
       <a href="/book-visitor" class="option-card">
         <div class="icon">🧳</div>
         <h6>Book as Visitor</h6>
@@ -527,6 +528,7 @@
         <h6>Become a Member</h6>
         <p>Subscribe to a membership plan</p>
       </a>
+      {% endif %}
       <a href="/book-member" class="option-card">
         <div class="icon">🎯</div>
         <h6>Book as Member</h6>
