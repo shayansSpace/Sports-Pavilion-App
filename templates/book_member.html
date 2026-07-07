@@ -19,7 +19,7 @@
     }
     .booking-container {
       width: 100%;
-      max-width: 600px;
+      max-width: 650px;
       padding: 15px;
     }
     .booking-card {
@@ -83,6 +83,37 @@
     .text-accent {
       color: #00fff0;
     }
+    
+    /* 6 Play Unit Grid Layout Styles */
+    .unit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .unit-radio {
+      display: none;
+    }
+    .unit-card {
+      background: #1a1a2e;
+      border: 2px solid #0f3460;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .unit-card:hover {
+      border-color: #00fff0;
+    }
+    .unit-radio:checked + .unit-card {
+      border-color: #00fff0;
+      background: rgba(0, 255, 240, 0.05);
+      box-shadow: 0 0 10px rgba(0, 255, 240, 0.15);
+    }
+    .unit-title {
+      font-size: 1rem;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -104,34 +135,34 @@
         <p class="text-muted mb-4">Select your court or zone. Your account rates and profile are automatically applied.</p>
       </div>
 
-      <form method="POST" action="{% url 'book_member' %}">
+      <form method="POST" action="{% url 'book_member' %}" id="bookingForm">
         {% csrf_token %}
         
         <div class="mb-4">
-          <label for="play_unit" class="form-label">Select Arena Facility Unit</label>
-          <select class="form-select" id="play_unit" name="play_unit" required>
-            <option value="" disabled selected>Choose target play unit...</option>
+          <label class="form-label d-block mb-2">Select Arena Facility Unit</label>
+          <div class="unit-grid">
             {% for unit in play_units %}
-              <option value="{{ unit.unit_id }}">
-                {{ unit.facility.facility_name }} — Unit {{ unit.unit_num }} 
-                {% if unit.unit_status != 'Available' %} (Occupied) {% endif %}
-              </option>
+              <label class="m-0">
+                <input type="radio" name="play_unit" value="{{ unit.unit_id }}" class="unit-radio" required>
+                <div class="unit-card">
+                  <div class="fw-bold text-accent unit-title">Unit {{ unit.unit_num }}</div>
+                  <small class="text-muted d-block">{{ unit.facility.facility_name }}</small>
+                </div>
+              </label>
             {% endfor %}
-          </select>
+          </div>
         </div>
 
         <div class="row mb-4">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="date" class="form-label">Reservation Date</label>
             <input type="date" class="form-control" id="date" name="date" required>
           </div>
-          <div class="col-md-4">
-            <label for="start_time" class="form-label">Start Window</label>
-            <input type="time" class="form-control" id="start_time" name="start_time" required>
-          </div>
-          <div class="col-md-4">
-            <label for="end_time" class="form-label">End Window</label>
-            <input type="time" class="form-control" id="end_time" name="end_time" required>
+          <div class="col-md-6">
+            <label for="time_slot" class="form-label">Available Time Slots</label>
+            <select class="form-select" id="time_slot" name="time_slot" required disabled>
+              <option value="" disabled selected>Select unit & date first...</option>
+            </select>
           </div>
         </div>
 
@@ -151,8 +182,61 @@
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const dateInput = document.getElementById('date');
+      const slotSelect = document.getElementById('time_slot');
+      const unitRadios = document.querySelectorAll('input[name="play_unit"]');
+
+      // Set lowest calendar limit to today
       const today = new Date().toISOString().split('T')[0];
       dateInput.min = today;
+
+      function updateAvailableSlots() {
+        const dateVal = dateInput.value;
+        const checkedUnit = document.querySelector('input[name="play_unit"]:checked');
+        const unitVal = checkedUnit ? checkedUnit.value : null;
+
+        // Keep dropdown disabled if inputs are incomplete
+        if (!dateVal || !unitVal) {
+          slotSelect.disabled = true;
+          slotSelect.innerHTML = '<option value="" disabled selected>Select unit & date first...</option>';
+          return;
+        }
+
+        // Fetch requests data from Django via AJAX
+        fetch(`?play_unit=${unitVal}&date=${dateVal}`, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          slotSelect.innerHTML = '<option value="" disabled selected>Choose an active session window...</option>';
+          
+          data.slots.forEach(slot => {
+            const option = document.createElement('option');
+            option.value = slot.value;
+            
+            if (slot.available) {
+              option.textContent = slot.display;
+            } else {
+              option.textContent = slot.display + " (Unavailable 🚫)";
+              option.disabled = true; 
+              option.style.color = '#ff6b6b'; 
+            }
+            slotSelect.appendChild(option);
+          });
+
+          // Successfully unlock dropdown element
+          slotSelect.disabled = false; 
+        })
+        .catch(error => {
+          console.error('Error parsing operational time allocations:', error);
+        });
+      }
+
+      dateInput.addEventListener('change', updateAvailableSlots);
+      unitRadios.forEach(radio => {
+        radio.addEventListener('change', updateAvailableSlots);
+      });
     });
   </script>
 </body>

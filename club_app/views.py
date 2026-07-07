@@ -10,6 +10,8 @@ from .models import Member
 from .models import MembershipPlan, Member, MemberPhone, PlayUnit, Visitor, VisitorPhone, Booking, VisitorBooking, MemberBooking
 from datetime import date
 
+
+
 # @login_required(login_url='login') # If anonymous, go to /login
 def index(request):
     is_member = False
@@ -238,6 +240,21 @@ def book_visitor(request):
     return render(request, 'book_visitor.html', context)
 
 
+OPERATIONAL_SLOTS = [
+    {"display": "09:00 AM - 10:00 AM", "start": "09:00:00", "end": "10:00:00"},
+    {"display": "10:00 AM - 11:00 AM", "start": "10:00:00", "end": "11:00:00"},
+    {"display": "11:00 AM - 12:00 PM", "start": "11:00:00", "end": "12:00:00"},
+    {"display": "12:00 PM - 01:00 PM", "start": "12:00:00", "end": "13:00:00"},
+    {"display": "01:00 PM - 02:00 PM", "start": "13:00:00", "end": "14:00:00"},
+    {"display": "02:00 PM - 03:00 PM", "start": "14:00:00", "end": "15:00:00"},
+    {"display": "03:00 PM - 04:00 PM", "start": "15:00:00", "end": "16:00:00"},
+    {"display": "04:00 PM - 05:00 PM", "start": "16:00:00", "end": "17:00:00"},
+    {"display": "05:00 PM - 06:00 PM", "start": "17:00:00", "end": "18:00:00"},
+    {"display": "06:00 PM - 07:00 PM", "start": "18:00:00", "end": "19:00:00"},
+    {"display": "07:00 PM - 08:00 PM", "start": "19:00:00", "end": "20:00:00"},
+    {"display": "08:00 PM - 09:00 PM", "start": "20:00:00", "end": "21:00:00"},
+]
+
 @login_required(login_url='login')
 def book_member(request):
     current_member = Member.objects.filter(mem_email=request.user.email).first()
@@ -248,13 +265,24 @@ def book_member(request):
     if request.method == 'POST':
         play_unit_id = request.POST.get('play_unit')
         target_date = request.POST.get('date')
-        start_time = request.POST.get('start_time')
-        end_time = request.POST.get('end_time')
+        raw_slot = request.POST.get('time_slot')
+        
+        if not raw_slot or '|' not in raw_slot:
+            messages.error(request, "Invalid time slot selection.")
+            return redirect('book_member')
+            
+        start_time, end_time = raw_slot.split('|')
 
-        # Conflict check
-        if Booking.objects.filter(play_unit_id=play_unit_id, booking_date=target_date, bk_start_time__lt=end_time, bk_end_time__gt=start_time).exists():
-            # CHANGED: Return JSON structure if you move book_member over to the fetch layout
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        # Conflict check preventing double-bookings
+        conflict = Booking.objects.filter(
+            play_unit_id=play_unit_id,
+            booking_date=target_date,
+            bk_start_time__lt=end_time,
+            bk_end_time__gt=start_time
+        ).exists()
+
+        if conflict:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'error': 'Slot already booked.'})
             messages.error(request, "Slot already booked.")
             return redirect('book_member')
@@ -270,50 +298,41 @@ def book_member(request):
         # Step 2: Link to member
         MemberBooking.objects.create(booking=booking, member=current_member)
 
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'booking_id': booking.booking_id,
-                'total_price': "Included in Membership Plan",
-                'message': f"Slot booked under Member ID: {current_member.member_id}"
-            })
-
         messages.success(request, f"Slot booked under Member ID: {current_member.member_id}")
         return redirect('home')
 
-    # --- CHANGED: Added dynamic timeframe filter system to matching member paths ---
+    # --- GET / AJAX CHANNEL LOGIC ---
     target_date = request.GET.get('date')
-    start_time = request.GET.get('start_time')
-    end_time = request.GET.get('end_time')
+    play_unit_id = request.GET.get('play_unit')
 
-    play_units = PlayUnit.objects.filter(unit_status='Available')
-    
-    if target_date and start_time and end_time:
-        conflicting_unit_ids = Booking.objects.filter(
-            booking_date=target_date,
-            bk_start_time__lt=end_time,
-            bk_end_time__gt=start_time
-        ).values_list('play_unit_id', flat=True)
-        
-        play_units = play_units.exclude(unit_id__in=conflicting_unit_ids)
+    # If background JavaScript requests slot data via AJAX:
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and target_date and play_unit_id:
+        # Query MySQL database to see what has already been reserved for this day and unit
+        existing_bookings = Booking.objects.filter(
+            play_unit_id=play_unit_id,
+            booking_date=target_date
+        )
 
-        # AJAX Interceptor: Returns structured arrays if background listener triggers query refresh
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            units_data = [
-                {
-                    'unit_id': u.unit_id,
-                    'unit_num': u.unit_num,
-                    'facility_name': u.facility.facility_name,
-                    'hourly_rate': str(u.facility.sp_hourly_rate)
-                } for u in play_units
-            ]
-            return JsonResponse(units_data, safe=False)
+        slots_status = []
+        for slot in OPERATIONAL_SLOTS:
+            # Overlap algorithm checking if this specific slot overlaps with an existing booking
+            is_booked = existing_bookings.filter(
+                bk_start_time__lt=slot['end'],
+                bk_end_time__gt=slot['start']
+            ).exists()
 
+            slots_status.append({
+                'display': slot['display'],
+                'value': f"{slot['start']}|{slot['end']}",
+                'available': not is_booked
+            })
+
+        return JsonResponse({'slots': slots_status}, safe=False)
+
+    # Standard non-AJAX initial page load path
+    play_units = PlayUnit.objects.all()  # Fetch all units so the user can see them in the visual grid
     context = {
         'play_units': play_units,
-        'date': target_date,
-        'start_time': start_time,
-        'end_time': end_time
     }
     return render(request, 'book_member.html', context)
 
