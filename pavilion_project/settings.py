@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'sports_pavilion',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'tiger',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
