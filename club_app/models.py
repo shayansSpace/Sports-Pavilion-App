@@ -97,15 +97,13 @@ class Staff(models.Model):
     def __str__(self):
         return f"{self.formatted_id} | {self.full_name} ({self.staff_role})"
 
+
 class GymTrainer(Staff):
     # ISA Specialization — Django auto-creates a 1:1 link back to Staff (staff_ptr_id)
     # Inherited fields: staff_id, staff_name, staff_salary, staff_role, phones
     # Specific fields below:
     trainer_start_time = models.TimeField()
     trainer_end_time = models.TimeField()
-
-    # M:N Relationship — MAINTAINS (GymTrainer ↔ GymEquipment)
-    maintains_equipment = models.ManyToManyField(GymEquipment, blank=True, related_name='maintained_by_trainers')
 
     @property
     def formatted_id(self):

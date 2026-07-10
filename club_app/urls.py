@@ -1,16 +1,15 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from club_app import views
 
 urlpatterns = [
-    path('register', views.registerUser, name='register'),
+    path('register/', views.registerUser, name='register'),
     path('', views.index, name='home'),
-    path('about', views.about, name='about'),
-    path('login', views.loginUser, name='login'),
-    path('logout', views.logoutUser, name='logout'),
-    path('book-visitor', views.book_visitor, name='book_visitor'),
-    path('become-member', views.become_member, name='become_member'),
-    path('book-member', views.book_member, name='book_member'),
+    path('about/', views.about, name='about'),
+    path('login/', views.loginUser, name='login'),
+    path('logout/', views.logoutUser, name='logout'),
+    path('book-visitor/', views.book_visitor, name='book_visitor'),
+    path('become-member/', views.become_member, name='become_member'),
+    path('book-member/', views.book_member, name='book_member'),
     
     # === ADMIN DASHBOARD - MEMBERS ===
     path('members/', views.member_list, name='member_list'),

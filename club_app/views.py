@@ -10,8 +10,6 @@ from .models import Member
 from .models import MembershipPlan, Member, MemberPhone, PlayUnit, Visitor, VisitorPhone, Booking, VisitorBooking, MemberBooking
 from datetime import date
 
-
-
 # @login_required(login_url='login') # If anonymous, go to /login
 def index(request):
     is_member = False
@@ -28,27 +26,42 @@ def index(request):
 
 def registerUser(request):
     if request.method == 'POST':
-        u_name = request.POST.get('username')
-        email = request.POST.get('email')
+        u_name = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
         p_word = request.POST.get('password')
+        p_word_confirm = request.POST.get('password_confirm') # NEW: Get confirm password
         
-        # 1. Validation: Check if username already exists
+        context = {
+            'title': 'Login / Register',
+            'typed_username': u_name,
+            'typed_email': email,
+            'active_tab': 'signup'
+        }
+
+        # 1. NEW VALIDATION: Check if passwords match
+        if p_word != p_word_confirm:
+            messages.error(request, "Passwords do not match!")
+            return render(request, 'login.html', context)
+
+        # 2. Validation: Check if username already exists
         if User.objects.filter(username=u_name).exists():
             messages.error(request, "Username is already taken!")
-            return redirect('login') # Sends them back to try again
+            return render(request, 'login.html', context)
             
-        # 2. Magic Creation: create_user automatically hashes the password safely
+        # 3. Validation: Check if email already exists
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "An account with this email already exists.")
+            return render(request, 'login.html', context)
+
+        # 4. Creation
         user = User.objects.create_user(username=u_name, email=email, password=p_word)
         user.save()
         
-        # 3. Seamless UX: Log them in instantly right after registration
         login(request, user)
-        
-        # 4. Set the 2-week cookie persistence you requested
         request.session.set_expiry(1209600) 
         
-        messages.success(request, f"Welcome to Sports Pavilion, {user.username}! Your account is ready.")
-        return redirect('home') # Standard users go to the index page
+        messages.success(request, f"Welcome to Sports Pavilion, {user.username}!")
+        return redirect('home')
         
     return redirect('login')
 
@@ -96,25 +109,30 @@ def loginUser(request):
         return redirect('home')
     
     if request.method == 'POST':
-        u_name = request.POST.get('username').strip()
+        u_name = request.POST.get('username', '').strip()
         p_word = request.POST.get('password')
         user = authenticate(username=u_name, password=p_word)
     
         if user is not None:
             login(request, user)
-            request.session.set_expiry(1209600) # 2 weeks in seconds
+            request.session.set_expiry(1209600)
 
             if user.is_staff:
-                return redirect('member_list') # Redirect Admin to /members
+                return redirect('member_list')
             else:
                 messages.success(request, f"Welcome {user.username}!")
-                return redirect('home') #return to index page for regular users 
+                return redirect('home')
         else:
-            context = {'title': 'Login'}
+            context = {
+                'title': 'Login',
+                'typed_login_username': u_name,
+                'active_tab': 'login'  # Keeps the login view open on error
+            }
             messages.error(request, "Invalid username or password")
             return render(request, 'login.html', context)
         
-    context = {'title': 'Login'}
+    # Default view state when first visiting the page
+    context = {'title': 'Login', 'active_tab': 'login'}
     return render(request, 'login.html', context)
 
 def logoutUser(request):
@@ -240,21 +258,6 @@ def book_visitor(request):
     return render(request, 'book_visitor.html', context)
 
 
-OPERATIONAL_SLOTS = [
-    {"display": "09:00 AM - 10:00 AM", "start": "09:00:00", "end": "10:00:00"},
-    {"display": "10:00 AM - 11:00 AM", "start": "10:00:00", "end": "11:00:00"},
-    {"display": "11:00 AM - 12:00 PM", "start": "11:00:00", "end": "12:00:00"},
-    {"display": "12:00 PM - 01:00 PM", "start": "12:00:00", "end": "13:00:00"},
-    {"display": "01:00 PM - 02:00 PM", "start": "13:00:00", "end": "14:00:00"},
-    {"display": "02:00 PM - 03:00 PM", "start": "14:00:00", "end": "15:00:00"},
-    {"display": "03:00 PM - 04:00 PM", "start": "15:00:00", "end": "16:00:00"},
-    {"display": "04:00 PM - 05:00 PM", "start": "16:00:00", "end": "17:00:00"},
-    {"display": "05:00 PM - 06:00 PM", "start": "17:00:00", "end": "18:00:00"},
-    {"display": "06:00 PM - 07:00 PM", "start": "18:00:00", "end": "19:00:00"},
-    {"display": "07:00 PM - 08:00 PM", "start": "19:00:00", "end": "20:00:00"},
-    {"display": "08:00 PM - 09:00 PM", "start": "20:00:00", "end": "21:00:00"},
-]
-
 @login_required(login_url='login')
 def book_member(request):
     current_member = Member.objects.filter(mem_email=request.user.email).first()
@@ -265,24 +268,13 @@ def book_member(request):
     if request.method == 'POST':
         play_unit_id = request.POST.get('play_unit')
         target_date = request.POST.get('date')
-        raw_slot = request.POST.get('time_slot')
-        
-        if not raw_slot or '|' not in raw_slot:
-            messages.error(request, "Invalid time slot selection.")
-            return redirect('book_member')
-            
-        start_time, end_time = raw_slot.split('|')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
 
-        # Conflict check preventing double-bookings
-        conflict = Booking.objects.filter(
-            play_unit_id=play_unit_id,
-            booking_date=target_date,
-            bk_start_time__lt=end_time,
-            bk_end_time__gt=start_time
-        ).exists()
-
-        if conflict:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Conflict check
+        if Booking.objects.filter(play_unit_id=play_unit_id, booking_date=target_date, bk_start_time__lt=end_time, bk_end_time__gt=start_time).exists():
+            # CHANGED: Return JSON structure if you move book_member over to the fetch layout
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
                 return JsonResponse({'success': False, 'error': 'Slot already booked.'})
             messages.error(request, "Slot already booked.")
             return redirect('book_member')
@@ -298,41 +290,50 @@ def book_member(request):
         # Step 2: Link to member
         MemberBooking.objects.create(booking=booking, member=current_member)
 
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'booking_id': booking.booking_id,
+                'total_price': "Included in Membership Plan",
+                'message': f"Slot booked under Member ID: {current_member.member_id}"
+            })
+
         messages.success(request, f"Slot booked under Member ID: {current_member.member_id}")
         return redirect('home')
 
-    # --- GET / AJAX CHANNEL LOGIC ---
+    # --- CHANGED: Added dynamic timeframe filter system to matching member paths ---
     target_date = request.GET.get('date')
-    play_unit_id = request.GET.get('play_unit')
+    start_time = request.GET.get('start_time')
+    end_time = request.GET.get('end_time')
 
-    # If background JavaScript requests slot data via AJAX:
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and target_date and play_unit_id:
-        # Query MySQL database to see what has already been reserved for this day and unit
-        existing_bookings = Booking.objects.filter(
-            play_unit_id=play_unit_id,
-            booking_date=target_date
-        )
+    play_units = PlayUnit.objects.filter(unit_status='Available')
+    
+    if target_date and start_time and end_time:
+        conflicting_unit_ids = Booking.objects.filter(
+            booking_date=target_date,
+            bk_start_time__lt=end_time,
+            bk_end_time__gt=start_time
+        ).values_list('play_unit_id', flat=True)
+        
+        play_units = play_units.exclude(unit_id__in=conflicting_unit_ids)
 
-        slots_status = []
-        for slot in OPERATIONAL_SLOTS:
-            # Overlap algorithm checking if this specific slot overlaps with an existing booking
-            is_booked = existing_bookings.filter(
-                bk_start_time__lt=slot['end'],
-                bk_end_time__gt=slot['start']
-            ).exists()
+        # AJAX Interceptor: Returns structured arrays if background listener triggers query refresh
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            units_data = [
+                {
+                    'unit_id': u.unit_id,
+                    'unit_num': u.unit_num,
+                    'facility_name': u.facility.facility_name,
+                    'hourly_rate': str(u.facility.sp_hourly_rate)
+                } for u in play_units
+            ]
+            return JsonResponse(units_data, safe=False)
 
-            slots_status.append({
-                'display': slot['display'],
-                'value': f"{slot['start']}|{slot['end']}",
-                'available': not is_booked
-            })
-
-        return JsonResponse({'slots': slots_status}, safe=False)
-
-    # Standard non-AJAX initial page load path
-    play_units = PlayUnit.objects.all()  # Fetch all units so the user can see them in the visual grid
     context = {
         'play_units': play_units,
+        'date': target_date,
+        'start_time': start_time,
+        'end_time': end_time
     }
     return render(request, 'book_member.html', context)
 

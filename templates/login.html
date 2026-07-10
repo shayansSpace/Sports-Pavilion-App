@@ -41,9 +41,9 @@
 
       .form-control:focus {
         background-color: #0f3460;
-        border-color: #f0c040; /* Crimson/Rose Accent Line */
+        border-color: #f0c040; /* Gold Accent Line */
         color: #ffffff;
-        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+        box-shadow: 0 0 0 0.25rem rgba(240, 192, 64, 0.15);
       }
 
       /* Navigation Tabs Overrides */
@@ -64,7 +64,7 @@
       }
 
       .nav-link.active {
-        color: #f0c040 !important; /* Rose Neon Selection */
+        color: #f0c040 !important; /* Gold Neon Selection */
         border-bottom: 2px solid #f0c040 !important;
       }
 
@@ -72,7 +72,7 @@
       .btn-primary-custom {
         background-color: #f0c040;
         border: none;
-        color: white;
+        color: #121212; /* Swapped to dark text for gold background contrast */
         padding: 10px;
         font-weight: 600;
         border-radius: 6px;
@@ -80,7 +80,7 @@
       }
 
       .btn-primary-custom:hover {
-        background-color: #f0c040;
+        background-color: #dcb030;
       }
 
       .btn-success-custom {
@@ -145,66 +145,70 @@
               role="tab"
             >
               Signup
-            </button>
-          </li>
-        </ul>
+        </button>
+      </li>
+    </ul>
 
-        <div class="tab-content" id="authTabsContent">
-          
-          <div
-            class="tab-pane fade {% if active_tab != 'signup' %}show active{% endif %}"
-            id="login-pane"
-            role="tabpanel"
-          >
-            <form method="POST" action="{% url 'login' %}">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required />
-              </div>
-              <button type="submit" class="btn btn-primary-custom w-100">
-                Login
-              </button>
-            </form>
+    <div class="tab-content" id="authTabsContent">
+      
+      <div
+        class="tab-pane fade {% if active_tab != 'signup' %}show active{% endif %}"
+        id="login-pane"
+        role="tabpanel"
+      >
+        <form method="POST" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" value="{{ typed_login_username|default:'' }}" required />
           </div>
-
-          <div
-            class="tab-pane fade {% if active_tab == 'signup' %}show active{% endif %}"
-            id="signup-pane"
-            role="tabpanel"
-          >
-            <form method="POST" action="{% url 'register' %}">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Email Address</label>
-                <input type="email" name="email" class="form-control" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required />
-              </div>
-              <button type="submit" class="btn btn-success-custom w-100">
-                Create Account
-              </button>
-            </form>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required />
           </div>
-
-        </div>
+          <button type="submit" class="btn btn-primary-custom w-100">
+            Login
+          </button>
+        </form>
       </div>
-    </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-      crossorigin="anonymous"
-    ></script>
-  </body>
-</html>
+      <div
+        class="tab-pane fade {% if active_tab == 'signup' %}show active{% endif %}"
+        id="signup-pane"
+        role="tabpanel"
+      >
+        <form method="POST" action="{% url 'register' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" value="{{ typed_username|default:'' }}" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control" value="{{ typed_email|default:'' }}" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required />
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password_confirm" class="form-control" required />
+          </div>
+
+          <button type="submit" class="btn btn-success-custom w-100">
+            Create Account
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+  crossorigin="anonymous"
+></script>
